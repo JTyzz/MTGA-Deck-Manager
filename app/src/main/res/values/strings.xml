@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">RetroRV</string>
+
+    <string-array name="magic_colors">
+        <item>White</item>
+        <item>Black</item>
+        <item>Red</item>
+        <item>Blue</item>
+        <item>Green</item>
+    </string-array>
+</resources>
