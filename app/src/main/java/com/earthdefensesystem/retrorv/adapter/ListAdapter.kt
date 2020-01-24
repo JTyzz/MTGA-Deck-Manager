@@ -19,6 +19,8 @@ class ListAdapter(private val context: Context, private val mCards: List<Cards>,
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         holder.cardName.text = mCards[position].name
         holder.cardText.text = mCards[position].text
+        holder.cardMana.text = mCards[position].manaCost
+
     }
 
     override fun getItemCount(): Int {
@@ -28,5 +30,11 @@ class ListAdapter(private val context: Context, private val mCards: List<Cards>,
     class CardViewHolder(containerView: View) : RecyclerView.ViewHolder(containerView){
         val cardName = containerView.card_name!!
         val cardText = containerView.card_text!!
+        val cardMana = containerView.card_mana!!
+
+    }
+
+    fun spannableImage(inputText: String) {
+
     }
 }

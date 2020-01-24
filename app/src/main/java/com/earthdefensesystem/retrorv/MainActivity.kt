@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import androidx.appcompat.app.AlertDialog
 import com.earthdefensesystem.retrorv.adapter.ListAdapter
 import com.earthdefensesystem.retrorv.model.Base
 import com.earthdefensesystem.retrorv.model.Cards
@@ -18,8 +20,7 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
 
     private var mApiService: APIService? = null
-    private val colorArray: ArrayList<String>? = null
-    private val checkedItems: BooleanArray? = null
+    //private val checkedItems: BooleanArray? = null
     private var mAdapter: ListAdapter?= null
     private var mCards: MutableList<Cards> = ArrayList()
 
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        var colorArray = this.resources.getStringArray(R.array.magic_colors)
 
 
         val recyclerView: RecyclerView = findViewById(R.id.listRecyclerView)
@@ -39,10 +42,14 @@ class MainActivity : AppCompatActivity() {
 
         getAllCards()
 
+
+
         white_btn.setOnClickListener {
-            getCardColor("white")
-            Log.d(TAG,"It worked at least a little")
+            val builder = AlertDialog.Builder(this@MainActivity)
+            builder.
         }
+
+
         green_btn.setOnClickListener {
             getCardColor("green")
         }
@@ -57,10 +64,10 @@ class MainActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call<Base>, response: Response<Base>) {
 
-                Log.d(TAG, "Total Questions: " + response.body()!!.cards.size)
-                val questions = response.body()
-                if (questions != null) {
-                    mCards.addAll(questions.cards)
+                Log.d(TAG, "Total Cards: " + response.body()!!.cards.size)
+                val resCards = response.body()
+                if (resCards != null) {
+                    mCards.addAll(resCards.cards)
                     mAdapter!!.notifyDataSetChanged()
                 }
             }
