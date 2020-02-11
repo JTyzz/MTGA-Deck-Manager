@@ -1,5 +1,6 @@
 package com.earthdefensesystem.retrorv
 
+import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 
 import androidx.recyclerview.widget.RecyclerView
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.earthdefensesystem.retrorv.adapter.ListAdapter
 import com.earthdefensesystem.retrorv.model.Base
@@ -17,6 +19,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.StringBuilder
+
 class MainActivity : AppCompatActivity() {
 
     private var mApiService: APIService? = null
@@ -28,10 +32,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        var colorArray = this.resources.getStringArray(R.array.magic_colors)
-
-
         val recyclerView: RecyclerView = findViewById(R.id.listRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -43,10 +43,8 @@ class MainActivity : AppCompatActivity() {
         getAllCards()
 
 
-
         white_btn.setOnClickListener {
-            val builder = AlertDialog.Builder(this@MainActivity)
-            builder.
+            showSearchDialog()
         }
 
 
@@ -80,6 +78,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun getCardColor(color: String){
+        mCards.clear()
+        mAdapter!!.notifyDataSetChanged()
         val call = mApiService!!.getCardColor(color)
         call.enqueue(object : Callback<Base> {
 
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
                 val questions = response.body()
                 if (questions != null) {
-                    mCards.clear()
+                    //mCards.clear()
                     mCards.addAll(questions.cards)
                     mAdapter!!.notifyDataSetChanged()
                 }
@@ -98,8 +98,41 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-    companion object {
-        private val TAG = MainActivity::class.java.simpleName
+
+    private fun showSearchDialog(){
+        val arrayColors = R.array.magic_colors
+        val arrayChecked = booleanArrayOf(false, false, false, false, false)
+        val builder = AlertDialog.Builder(this@MainActivity)
+        val colorsList = arrayOf("White", "Black", "Red", "Blue", "Green")
+//        val colorsList = arrayOf(arrayColors)
+        builder.setTitle("Select colors")
+        builder.setMultiChoiceItems(arrayColors, arrayChecked) { dialogInterface, i, isChecked->
+            arrayChecked[i] = isChecked
+            val color = colorsList[i]
+            Toast.makeText(applicationContext, "$color $isChecked" , Toast.LENGTH_SHORT).show()
+        }
+        builder.setPositiveButton("Search") { dialogInterface, i ->
+            val sb = StringBuilder()
+            for (j in arrayChecked.indices){
+                val checked = arrayChecked[j]
+                if (checked){
+                    sb.append(colorsList[j]).append("|")
+                }
+            }
+            val colorSearch = sb.toString().substring(0, sb.length-1)
+            Toast.makeText(applicationContext, colorSearch , Toast.LENGTH_SHORT).show()
+            getCardColor(colorSearch)
+        }
+        builder.setNeutralButton("Cancel") {dialogInterface, i ->
+            dialogInterface.cancel()
+        }
+        val dialog = builder.create()
+        dialog.show()
+
     }
+    companion object {
+        private const val TAG = "Frankfurter"
+    }
+
 
 }
