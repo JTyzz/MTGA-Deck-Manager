@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
-import com.earthdefensesystem.retrorv.model.Cards
+import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.Deck
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
 class DeckListAdapter (var deckList:List<Deck>, var context: Context) :BaseAdapter() {
