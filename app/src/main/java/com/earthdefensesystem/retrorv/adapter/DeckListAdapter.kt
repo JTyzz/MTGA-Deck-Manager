@@ -1,23 +1,24 @@
 package com.earthdefensesystem.retrorv.adapter
 
 import android.app.Activity
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.model.Deck
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
-
-data class DeckListAdapter (var deckList:List<Deck>, var context: Activity) :BaseAdapter() {
+class DeckListAdapter (var deckList:List<Deck>, var context: Context) :BaseAdapter() {
 
     override fun getItem(position: Int): Any {
-        return deckList.get(position)
+        return deckList[position]
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return 0
     }
 
     override fun getCount(): Int {
@@ -25,11 +26,28 @@ data class DeckListAdapter (var deckList:List<Deck>, var context: Activity) :Bas
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view: View = View.inflate(context, R.layout.deck_grid_item, null)
+        var holder: ViewHolder
+        var newView = convertView
+        if (newView == null) {
+            val mInflater = (context as Activity).layoutInflater
 
-        val name_tv = view.findViewById<TextView>(R.id.deck_tv)
-        name_tv.text = deckList.get(position).name
+            newView = mInflater.inflate(R.layout.deck_grid_item, parent, false)
 
-        return view
+            holder = ViewHolder()
+
+            holder.mTextView = newView!!.findViewById(R.id.deck_tv)
+
+            newView.tag = holder
+        } else {
+            holder = newView.tag as ViewHolder
+        }
+
+        holder.mTextView!!.text = deckList[position].name
+
+        return newView
+    }
+
+    class ViewHolder {
+        var mTextView: TextView? = null
     }
 }

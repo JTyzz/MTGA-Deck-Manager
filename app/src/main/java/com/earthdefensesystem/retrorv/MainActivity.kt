@@ -1,5 +1,6 @@
 package com.earthdefensesystem.retrorv
 
+import android.content.Intent
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 
@@ -49,7 +50,8 @@ class MainActivity : AppCompatActivity() {
 
 
         green_btn.setOnClickListener {
-            getCardColor("green")
+            val intent = Intent(this, DeckListActivity::class.java)
+            startActivity(intent)
         }
         black_btn.setOnClickListener {
             getCardColor("black")
