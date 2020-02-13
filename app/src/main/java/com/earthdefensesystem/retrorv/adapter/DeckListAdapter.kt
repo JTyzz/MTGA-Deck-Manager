@@ -8,10 +8,12 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
-import com.earthdefensesystem.retrorv.model.Card
+import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.model.Deck
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
-class DeckListAdapter (var deckList:List<Deck>, var context: Context) :BaseAdapter() {
+
+
+class DeckListAdapter(var deckList: List<Deck>, var context: Context) : BaseAdapter() {
 
     override fun getItem(position: Int): Any {
         return deckList[position]
@@ -26,7 +28,9 @@ class DeckListAdapter (var deckList:List<Deck>, var context: Context) :BaseAdapt
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+
         var holder: ViewHolder
+
         var newView = convertView
         if (newView == null) {
             val mInflater = (context as Activity).layoutInflater
@@ -38,6 +42,7 @@ class DeckListAdapter (var deckList:List<Deck>, var context: Context) :BaseAdapt
             holder.mTextView = newView!!.findViewById(R.id.deck_tv)
 
             newView.tag = holder
+
         } else {
             holder = newView.tag as ViewHolder
         }
