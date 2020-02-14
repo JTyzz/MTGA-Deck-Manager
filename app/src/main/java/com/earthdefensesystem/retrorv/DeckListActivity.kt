@@ -1,5 +1,6 @@
 package com.earthdefensesystem.retrorv
 
+import android.content.Context
 import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,8 +19,9 @@ class DeckListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_deck_list)
-        Paper.init(this)
-        initDeck()
+        val context: Context = this
+        Paper.init(context)
+        deckList =initDeck(deckList)
 
         val decklist_view = findViewById<GridView>(R.id.gv_deck)
 
@@ -39,21 +41,28 @@ class DeckListActivity : AppCompatActivity() {
                 checkList()
                 val newDeck = Deck("New Deck$count")
                 deckList.add(newDeck)
+                saveToDb(deckList)
                 adapter.notifyDataSetChanged()
+
             }
         }
     }
 
-    private fun initDeck() {
+    private fun initDeck(initDeckList: ArrayList<Deck>): ArrayList<Deck> {
         Thread {
-            deckList = Paper.book().read("decks", ArrayList())
+            deckList = Paper.book().read("decks")
         }
         if (deckList.size == 0) {
             val startDeck = Deck("Add new deck")
             deckList.add(startDeck)
-            Thread {
-                Paper.book().write("decks", deckList)
-            }
+            saveToDb(deckList)
+        }
+        return initDeckList
+    }
+
+    private fun saveToDb(deckListDb: ArrayList<Deck> ){
+        Thread {
+            Paper.book().write("decks", deckListDb)
         }
     }
 
