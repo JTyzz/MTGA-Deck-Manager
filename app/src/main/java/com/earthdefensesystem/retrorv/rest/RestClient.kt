@@ -6,9 +6,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RestClient {
-    private val BASE_URL = "https://api.magicthegathering.io"
+    private const val BASE_URL = "https://api.magicthegathering.io"
     private var mRetrofit: Retrofit? = null
 
+    //increase timeout length mtg.io can be slow
     private val okHttp = OkHttpClient.Builder()
         .callTimeout(1, TimeUnit.MINUTES)
         .connectTimeout(1, TimeUnit.MINUTES)

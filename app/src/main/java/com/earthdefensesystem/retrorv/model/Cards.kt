@@ -2,7 +2,7 @@ package com.earthdefensesystem.retrorv.model
 
 import com.google.gson.annotations.SerializedName
 
-data class Cards (
+data class Cards(
 
 	@SerializedName("name") val name : String? = null,
 	@SerializedName("manaCost") val manaCost : String? = null,
@@ -22,11 +22,8 @@ data class Cards (
 	@SerializedName("layout") val layout : String? = null,
 	@SerializedName("multiverseid") val multiverseid : Int? = null,
 	@SerializedName("imageUrl") val imageUrl : String? = null,
-	@SerializedName("rulings") val rulings : List<Rulings>? = null,
-	@SerializedName("foreignNames") val foreignNames : List<ForeignNames>? = null,
 	@SerializedName("printings") val printings : List<String>? = null,
 	@SerializedName("originalText") val originalText : String? = null,
 	@SerializedName("originalType") val originalType : String? = null,
-	@SerializedName("legalities") val legalities : List<Legalities>? = null,
 	@SerializedName("id") val id : String? = null
 )

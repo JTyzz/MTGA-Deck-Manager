@@ -7,3 +7,4 @@ data class Base (
 
 	@SerializedName("cards") val cards : List<Cards>
 )
+
