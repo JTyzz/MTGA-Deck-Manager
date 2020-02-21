@@ -1,34 +1,31 @@
 package com.earthdefensesystem.retrorv
 
 import android.content.Context
-import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.GridView
-import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckListAdapter
-import com.earthdefensesystem.retrorv.model.Cards
+import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.Deck
-import io.paperdb.Paper
 
 class DeckListActivity : AppCompatActivity() {
-    var deckList = ArrayList<Deck>()
+    private var deckList = ArrayList<Deck>()
+    val repo: DeckRepo
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_deck_list)
         val context: Context = this
-        Paper.init(context)
-        deckList =initDeck(deckList)
+        deckList = initDeck(deckList)
 
-        val decklist_view = findViewById<GridView>(R.id.gv_deck)
+        val decklistView = findViewById<GridView>(R.id.gv_deck)
 
         val adapter = DeckListAdapter(deckList, this@DeckListActivity)
-        decklist_view?.adapter = adapter
+        decklistView?.adapter = adapter
 
-        decklist_view.setOnItemClickListener { _, _, position, _ ->
+        decklistView.setOnItemClickListener { _, _, position, _ ->
             Log.e("Salami", "Tapped $position")
             var count = 0
             fun checkList() {
@@ -64,6 +61,10 @@ class DeckListActivity : AppCompatActivity() {
         Thread {
             Paper.book().write("decks", deckListDb)
         }
+    }
+
+    private fun getDeckList(){
+
     }
 
 }
