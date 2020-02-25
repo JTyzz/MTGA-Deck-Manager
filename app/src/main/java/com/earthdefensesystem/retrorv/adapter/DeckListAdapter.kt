@@ -2,6 +2,7 @@ package com.earthdefensesystem.retrorv.adapter
 
 import android.app.Activity
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -13,46 +14,34 @@ import com.earthdefensesystem.retrorv.model.Deck
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
 
 
-class DeckListAdapter(var deckList: List<Deck>, var context: Context) : BaseAdapter() {
+class DeckListAdapter internal constructor(context: Context, val clickListener: (Deck) -> Unit) : RecyclerView.Adapter<DeckListAdapter.ViewHolder>() {
 
-    override fun getItem(position: Int): Any {
-        return deckList[position]
+    private var decks = emptyList<Deck>()
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
+    var onItemClick: ((position: Int, view: View) -> Unit)? = null
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):ViewHolder {
+        val itemView = inflater.inflate(R.layout.deck_grid_item, parent, false)
+        return ViewHolder(itemView)
     }
 
-    override fun getItemId(position: Int): Long {
-        return 0
+    override fun getItemCount(): Int {
+        return decks.size
     }
 
-    override fun getCount(): Int {
-        return deckList.size
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(decks[position], clickListener)
+    }
+    internal fun loadDecks(decks: List<Deck>){
+        this.decks = decks
+        notifyDataSetChanged()
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-
-        var holder: ViewHolder
-
-        var newView = convertView
-        if (newView == null) {
-            val mInflater = (context as Activity).layoutInflater
-
-            newView = mInflater.inflate(R.layout.deck_grid_item, parent, false)
-
-            holder = ViewHolder()
-
-            holder.mTextView = newView!!.findViewById(R.id.deck_tv)
-
-            newView.tag = holder
-
-        } else {
-            holder = newView.tag as ViewHolder
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+        fun bind(deck: Deck, clickListener: (Deck) -> Unit){
+            itemView.deck_tv.text = deck.name
+            itemView.setOnClickListener { clickListener(deck) }
         }
 
-        holder.mTextView!!.text = deckList[position].name
-
-        return newView
-    }
-
-    class ViewHolder {
-        var mTextView: TextView? = null
     }
 }

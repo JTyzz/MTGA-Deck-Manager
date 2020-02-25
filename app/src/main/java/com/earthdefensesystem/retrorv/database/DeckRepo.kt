@@ -1,12 +1,17 @@
 package com.earthdefensesystem.retrorv.database
 
+import androidx.lifecycle.LiveData
 import com.earthdefensesystem.retrorv.model.Deck
 
-class DeckRepo private constructor(private val deckDao: DeckDao){
+class DeckRepo(private val deckDao: DeckDao){
 
-    val allDecks: List<Deck> = deckDao.getDecks()
+    val allLDDecks: LiveData<List<Deck>> = deckDao.getLDDecks()
 
-    fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
+    suspend fun deleteAll(){
+        deckDao.deleteAll()
+    }
+//
+//    fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
 
     suspend fun insert(deck: Deck){
         deckDao.insertDeck(deck)

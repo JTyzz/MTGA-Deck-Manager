@@ -6,16 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".DeckListActivity">
 
-    <GridView
-        android:id="@+id/gv_deck"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_deck"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="90dp"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="10dp"
-        android:numColumns="2"
-        android:stretchMode="columnWidth"
+        android:numColumns="auto_fit"
         />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/new_deck_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_r_mana" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
