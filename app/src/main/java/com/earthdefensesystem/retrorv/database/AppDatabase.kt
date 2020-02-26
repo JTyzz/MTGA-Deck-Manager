@@ -40,8 +40,8 @@ abstract class AppDatabase : RoomDatabase() {
         private class DeckDatabaseCallback(
             private val scope: CoroutineScope
         ) : RoomDatabase.Callback() {
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(database.deckDao())
@@ -51,11 +51,11 @@ abstract class AppDatabase : RoomDatabase() {
         }
         suspend fun populateDatabase( deckDao: DeckDao){
             deckDao.deleteAll()
-            var deck = Deck("New Deck")
+            var deck = Deck("New Deck", 0)
             deckDao.insertDeck(deck)
-            deck = Deck("New Deck2")
+            deck = Deck("New Deck2", 1)
             deckDao.insertDeck(deck)
-            deck = Deck("New Deck3")
+            deck = Deck("New Deck3", 3)
             deckDao.insertDeck(deck)
         }
     }

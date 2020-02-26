@@ -31,10 +31,10 @@ data class Cards(
 
 @Entity(tableName = "deck_table")
 data class Deck(
-	@PrimaryKey @ColumnInfo(name = "name") var name: String
-//	@PrimaryKey(autoGenerate = true) var deckId: Long? = null,
-//	var date: Long? = null,
-//	var imgPath: String? = null
+	var name: String,
+	var date: Long? = null,
+	var imgPath: String? = null,
+	@PrimaryKey(autoGenerate = true) var deckId: Long? = null
 )
 //junction between card and deck
 //@Entity(primaryKeys = ["deckId", "cardId"])

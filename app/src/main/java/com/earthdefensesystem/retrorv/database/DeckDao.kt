@@ -7,10 +7,10 @@ import com.earthdefensesystem.retrorv.model.Deck
 
 @Dao
 interface DeckDao {
-    @Query("SELECT * FROM deck_table ORDER BY name ASC")
+    @Query("SELECT * FROM deck_table ORDER BY date ASC")
     fun getLDDecks(): LiveData<List<Deck>>
 
-    @Query("SELECT * FROM deck_table ORDER BY name ASC")
+    @Query("SELECT * FROM deck_table ORDER BY date ASC")
     fun getDecks(): List<Deck>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

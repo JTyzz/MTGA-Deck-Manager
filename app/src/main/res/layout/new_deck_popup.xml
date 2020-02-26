@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#c7bf98"
-    android:padding="20dp"
-    >
-    <TextView
-        android:id="@+id/text_view"
+    android:padding="20dp">
+    <EditText
+        android:id="@+id/deck_name_et"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        android:inputType="textPersonName"
+        android:layout_marginStart="50dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Click me to change my text color"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:hint="Deck name"
         />
+
     <Button
         android:id="@+id/button_popup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Close Me"
-        />
-</LinearLayout>
+        app:layout_constraintStart_toEndOf="@+id/deck_name_et"
+        app:layout_constraintTop_toBottomOf="@id/deck_name_et" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
