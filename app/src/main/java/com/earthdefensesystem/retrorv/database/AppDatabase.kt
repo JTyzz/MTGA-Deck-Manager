@@ -5,12 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.model.Deck
+import com.earthdefensesystem.retrorv.model.DeckCardJoin
+import com.earthdefensesystem.retrorv.model.DecksWithCards
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Deck::class], version = 1, exportSchema = false)
+@Database(entities = [Deck::class, Cards::class, DeckCardJoin::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun deckDao(): DeckDao
@@ -51,12 +54,6 @@ abstract class AppDatabase : RoomDatabase() {
         }
         suspend fun populateDatabase( deckDao: DeckDao){
             deckDao.deleteAll()
-            var deck = Deck("New Deck", 0)
-            deckDao.insertDeck(deck)
-            deck = Deck("New Deck2", 1)
-            deckDao.insertDeck(deck)
-            deck = Deck("New Deck3", 3)
-            deckDao.insertDeck(deck)
         }
     }
 }

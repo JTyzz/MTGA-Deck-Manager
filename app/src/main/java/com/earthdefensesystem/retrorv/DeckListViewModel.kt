@@ -29,7 +29,7 @@ class DeckListViewModel(application: Application) : AndroidViewModel(application
 
     //viewmodel specific coroutine scope for threads so insert doesnt block ui
     fun insert(deck: Deck) = viewModelScope.launch {
-        repo.insert(deck)
+        repo.insertDeck(deck)
     }
 
     //when making new deck checks for name and increments if so

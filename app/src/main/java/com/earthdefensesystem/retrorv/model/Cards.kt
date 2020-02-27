@@ -1,14 +1,15 @@
 package com.earthdefensesystem.retrorv.model
 
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.annotation.NonNull
+import androidx.room.*
 import com.google.gson.annotations.SerializedName
 
-@Entity
+@Entity(tableName = "card_table")
 data class Cards(
-	@PrimaryKey @SerializedName ("id") val cardId : String? = null,
+	@PrimaryKey
+	@ColumnInfo(name = "cardId", index = true)
+	@SerializedName ("id") val cardId : String,
 	@SerializedName("name") val name : String? = null,
 	@SerializedName("manaCost") val manaCost : String? = null,
 	@SerializedName("cmc") val cmc : Int? = null,
@@ -33,24 +34,27 @@ data class Cards(
 data class Deck(
 	var name: String,
 	var date: Long? = null,
-	var imgPath: String? = null,
-	@PrimaryKey(autoGenerate = true) var deckId: Long? = null
+//	var imgPath: String? = null,
+	@ColumnInfo(index = true)
+	@PrimaryKey(autoGenerate = true)
+	var deckId: Long? = null
 )
 //junction between card and deck
-//@Entity(primaryKeys = ["deckId", "cardId"])
-//data class DeckCardJoin(
-//	val cardId: String,
-//	val deckId: Long
-//)
+@Entity(primaryKeys = ["deckId", "cardId"])
+data class DeckCardJoin(
+	@ColumnInfo(name = "cardId", index = true)
+	val cardId: String,
+	@ColumnInfo(name = "deckId", index = true)
+	val deckId: Long
+)
 
 //single deck multiple card class
-//data class DeckWithCards(
-//	@Embedded val deck: Deck,
-//	@Relation(
-//		parentColumn = "deckId",
-//		entityColumn = "songId",
-//		associateBy = Junction(DeckCardJoin::class)
-//	)
-//	val cards: List<Cards>
-//)
-
+data class DecksWithCards(
+	@Embedded val deck: Deck,
+	@Relation(
+		parentColumn = "deckId",
+		entityColumn = "cardId",
+		associateBy = Junction(DeckCardJoin::class)
+	)
+	val cards: List<Cards>
+)

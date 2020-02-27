@@ -108,12 +108,12 @@ class MainActivity : AppCompatActivity() {
         val colorsList = arrayOf("White", "Black", "Red", "Blue", "Green")
 //        val colorsList = arrayOf(arrayColors)
         builder.setTitle("Select colors")
-        builder.setMultiChoiceItems(arrayColors, arrayChecked) { dialogInterface, i, isChecked->
+        builder.setMultiChoiceItems(arrayColors, arrayChecked) { _, i, isChecked->
             arrayChecked[i] = isChecked
             val color = colorsList[i]
             Toast.makeText(applicationContext, "$color $isChecked" , Toast.LENGTH_SHORT).show()
         }
-        builder.setPositiveButton("Search") { dialogInterface, i ->
+        builder.setPositiveButton("Search") { _, _ ->
             val sb = StringBuilder()
             for (j in arrayChecked.indices){
                 val checked = arrayChecked[j]
