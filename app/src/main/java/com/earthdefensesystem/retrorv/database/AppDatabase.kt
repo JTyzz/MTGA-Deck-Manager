@@ -1,19 +1,16 @@
 package com.earthdefensesystem.retrorv.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.earthdefensesystem.retrorv.model.Cards
-import com.earthdefensesystem.retrorv.model.Deck
-import com.earthdefensesystem.retrorv.model.DeckCardJoin
-import com.earthdefensesystem.retrorv.model.DecksWithCards
+import com.earthdefensesystem.retrorv.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Deck::class, Cards::class, DeckCardJoin::class], version = 1, exportSchema = false)
+@Database(entities = [Deck::class, Cards::class, DeckCardJoin::class],
+          version = 1, exportSchema = false)
+@TypeConverters(StringListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun deckDao(): DeckDao

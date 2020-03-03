@@ -32,11 +32,9 @@ class DeckListActivity : AppCompatActivity() {
         val decklistView = findViewById<RecyclerView>(R.id.rv_deck)
         val newDeckFab = findViewById<FloatingActionButton>(R.id.new_deck_fab)
 
-        val adapter = DeckListAdapter(this) { deckItem: Deck -> deckItemClicked(deckItem)}
+        val adapter = DeckListAdapter(this) { deckItem: Deck -> deckItemClicked(deckItem) }
         decklistView.adapter = adapter
         decklistView.layoutManager = GridLayoutManager(this, 2)
-
-
 
         deckListViewModel = ViewModelProvider(this).get(DeckListViewModel::class.java)
 
@@ -45,47 +43,43 @@ class DeckListActivity : AppCompatActivity() {
         })
 
         newDeckFab.setOnClickListener {
-            val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater: LayoutInflater =
+                getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-            // Inflate a custom view using layout inflater
-            val view = inflater.inflate(R.layout.new_deck_popup,null)
+            // inflate popup view
+            val view = inflater.inflate(R.layout.new_deck_popup, null)
+            val et = view.findViewById<EditText>(R.id.deck_name_et)
+            val buttonPopup = view.findViewById<Button>(R.id.button_popup)
 
-            // Initialize a new instance of popup window
+            // new popupwindow instance
             val popupWindow = PopupWindow(
                 view, // Custom view to show in popup window
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
                 LinearLayout.LayoutParams.WRAP_CONTENT // Window height
             )
 
-            // Set an elevation for the popup window
-                popupWindow.elevation = 10.0F
-                popupWindow.isFocusable = true
+            popupWindow.elevation = 10.0F
+            popupWindow.isFocusable = true
 
+            val slideIn = Slide()
+            slideIn.slideEdge = Gravity.TOP
+            popupWindow.enterTransition = slideIn
 
-                // Create a new slide animation for popup window enter transition
-                val slideIn = Slide()
-                slideIn.slideEdge = Gravity.TOP
-                popupWindow.enterTransition = slideIn
+            val slideOut = Slide()
+            slideOut.slideEdge = Gravity.END
+            popupWindow.exitTransition = slideOut
 
-                // Slide animation for popup window exit transition
-                val slideOut = Slide()
-                slideOut.slideEdge = Gravity.END
-                popupWindow.exitTransition = slideOut
-
-
-            // Get the widgets reference from custom view
-            val et = view.findViewById<EditText>(R.id.deck_name_et)
-            val buttonPopup = view.findViewById<Button>(R.id.button_popup)
-            // Set a click listener for popup's button widget
-            buttonPopup.setOnClickListener{
-                val word  = et.text.toString()
+            //onclick listener
+            buttonPopup.setOnClickListener {
+                val word = et.text.toString()
                 val time = System.currentTimeMillis()
                 val deck = Deck(word, time)
                 deckListViewModel.insert(deck)
+                deckListViewModel.checkExistingName(deck)
                 popupWindow.dismiss()
             }
 
-            // Set a dismiss listener for popup window
+            // dismiss listener
             popupWindow.setOnDismissListener {
                 adapter.notifyDataSetChanged()
             }
@@ -97,32 +91,7 @@ class DeckListActivity : AppCompatActivity() {
                 deck_list_layout, Gravity.CENTER, 0, 0
             )
         }
-        }
-
-//        } { _, _, position, _ ->
-//            Log.e("Salami", "Tapped $position")
-//            if (position == 0){
-//                deckListViewModel.checkExistingName(newDeck)
-//                deckListViewModel.insert(newDeck)
-//                adapter.notifyDataSetChanged()
-//            }
-
-
-//            var count = 0
-//            fun checkList() {
-//                if (deckListViewModel.deckList.contains(Deck("New Deck$count"))) {
-//                    count++
-//                    checkList()
-//                }
-//            }
-//            if (position == 0) {
-//                checkList()
-//                val newDeck = Deck("New Deck$count")
-//                deckList.add(newDeck)
-//                saveToDb(deckList)
-//                adapter.notifyDataSetChanged()
-//
-//            }
+    }
 
     private fun deckItemClicked(deckItem: Deck) {
         Toast.makeText(this, "Clicked: ${deckItem.name}", Toast.LENGTH_SHORT).show()
