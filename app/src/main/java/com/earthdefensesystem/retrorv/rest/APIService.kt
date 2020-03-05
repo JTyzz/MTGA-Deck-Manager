@@ -9,9 +9,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface APIService {
-    @GET("/v1/cards")
+    @GET("/cards")
     fun getAllCards(): Call<Base>
 
-    @GET("/v1/cards")
-    fun getCardColor(@Query("colors") color:String): Deferred<Response<Base>>
+    @GET("/cards/search")
+    fun getCardColor(@Query("q") color: String): Deferred<Response<Base>>
 }

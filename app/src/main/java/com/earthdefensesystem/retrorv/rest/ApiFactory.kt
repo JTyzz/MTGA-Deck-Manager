@@ -1,27 +1,31 @@
 package com.earthdefensesystem.retrorv.rest
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiFactory {
-    private const val BASE_URL = "https://api.magicthegathering.io"
-    private var mRetrofit: Retrofit? = null
+    //private const val BASE_URL = "https://api.magicthegathering.io"
+    private const val BASE_URL = "https://api.scryfall.com"
 
-    //increase timeout length mtg.io can be slow
+    private val loggingInterceptor =
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+
     private val okHttp = OkHttpClient.Builder()
-        .callTimeout(1, TimeUnit.MINUTES)
-        .connectTimeout(1, TimeUnit.MINUTES)
-        .readTimeout(1, TimeUnit.MINUTES)
-        .writeTimeout(1, TimeUnit.MINUTES)
+        .addInterceptor(loggingInterceptor)
+        .build()
 
-    fun retrofit() : Retrofit = Retrofit.Builder()
+    fun retrofit(): Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
-        .client(okHttp.build())
+        .client(okHttp)
         .build()
 
 

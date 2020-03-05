@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.earthdefensesystem.retrorv.database.DeckRepo
+import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.rest.ApiFactory
 import com.earthdefensesystem.retrorv.rest.SearchRepo
@@ -23,11 +24,12 @@ class SearchViewModel (application: Application) : AndroidViewModel(application)
 
     private val scope = CoroutineScope(coroutineContext)
 
-    val searchCardsLiveData = MutableLiveData<List<Cards>>()
+    val searchCardsLiveData = MutableLiveData<List<Card>>()
 
     fun getCardsSearch(color: String){
         scope.launch {
             val searchCards = repo.getSearchCards(color)
+            searchCards?.removeIf{ it.imageUris?.small == null}
             searchCardsLiveData.postValue(searchCards)
         }
     }
