@@ -34,7 +34,7 @@ class DeckListActivity : AppCompatActivity() {
 
         val adapter = DeckListAdapter(this) { deckItem: Deck -> deckItemClicked(deckItem) }
         decklistView.adapter = adapter
-        decklistView.layoutManager = GridLayoutManager(this, 2)
+        decklistView.layoutManager = GridLayoutManager(this, 2) as RecyclerView.LayoutManager?
 
         deckListViewModel = ViewModelProvider(this).get(DeckListViewModel::class.java)
 

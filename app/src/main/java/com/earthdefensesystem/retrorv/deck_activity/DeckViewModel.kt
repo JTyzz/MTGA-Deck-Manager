@@ -1,11 +1,11 @@
-package com.earthdefensesystem.retrorv
+package com.earthdefensesystem.retrorv.deck_activity
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
+import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.Card
-import com.earthdefensesystem.retrorv.model.Cards
+import com.earthdefensesystem.retrorv.model.Deck
 import com.earthdefensesystem.retrorv.rest.ApiFactory
 import com.earthdefensesystem.retrorv.rest.SearchRepo
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SearchViewModel (application: Application) : AndroidViewModel(application){
+class DeckViewModel (application: Application) : AndroidViewModel(application) {
     private val repo: SearchRepo = SearchRepo(ApiFactory.apiService)
 
     private val parentJob = Job()
