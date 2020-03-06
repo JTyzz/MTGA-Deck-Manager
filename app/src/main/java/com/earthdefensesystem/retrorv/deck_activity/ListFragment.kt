@@ -23,6 +23,7 @@ import com.earthdefensesystem.retrorv.adapter.ListAdapter
 import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.Deck
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.deck_activity.*
 
 class ListFragment : Fragment() {
 
@@ -36,20 +37,15 @@ class ListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
+        activity?.let {
+            viewModel = ViewModelProvider(it).get(SearchViewModel::class.java)
+        }
         val view = inflater.inflate(R.layout.list_fragment, container, false)
-
         val fab = view.findViewById<FloatingActionButton>(R.id.deck_fab)
         val recyclerView = view.findViewById<RecyclerView>(R.id.list_rv)
-        val activity = activity as Context
-
-
-
-
-
-        val listAdapter = ListAdapter(activity) { deckItem: Deck -> listItemClicked(deckItem) }
+        val listAdapter = ListAdapter(requireContext()) { deckItem: Deck -> listItemClicked(deckItem) }
         recyclerView.adapter = listAdapter
-        recyclerView.layoutManager = GridLayoutManager(activity, 2) as RecyclerView.LayoutManager?
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2) as RecyclerView.LayoutManager?
 
         viewModel.allLDDecks.observe(this, Observer { decks ->
             decks?.let { listAdapter.loadDecks(it)
@@ -102,10 +98,13 @@ class ListFragment : Fragment() {
     }
     fun toDeckFragment() {
         val transaction = activity!!.supportFragmentManager.beginTransaction()
+        transaction.remove(ListFragment())
+        activity!!.findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
+        activity!!.findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.VISIBLE
+        activity!!.findViewById<FrameLayout>(R.id.screen_frame).visibility = View.GONE
         transaction.replace(R.id.top_frame, DeckFragment())
+        transaction.replace(R.id.bottom_frame, SearchFragment())
         transaction.addToBackStack(null)
         transaction.commit()
     }
-
-
 }

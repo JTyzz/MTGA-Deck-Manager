@@ -33,18 +33,17 @@ class DeckFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
         activity?.let {
             viewModel = ViewModelProvider(it).get((SearchViewModel::class.java))
         }
-        deckid = view.findViewById<TextView>(R.id.deck_id_tv)
-        deckname = view.findViewById<TextView>(R.id.deck_name_tv)
+        val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
+        deckid = view.findViewById(R.id.deck_id_tv)
+        deckname = view.findViewById(R.id.deck_name_tv)
         viewModel.openDeck.observe(this,
             Observer<Deck> { t ->
                 deckid.text = t.deckId.toString()
                 deckname.text = t.name
             })
-
         deckid.setOnClickListener{
             Toast.makeText(context, viewModel.openDeck.value?.name, Toast.LENGTH_LONG).show()
         }
@@ -52,4 +51,8 @@ class DeckFragment : Fragment() {
     }
 
 
+}
+
+interface IOnBackPressed {
+    fun onBackPressed(): Boolean
 }

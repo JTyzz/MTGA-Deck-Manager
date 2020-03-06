@@ -32,16 +32,16 @@ class SearchFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get((SearchViewModel::class.java))
-
+        activity?.let {
+            viewModel = ViewModelProvider(it).get((SearchViewModel::class.java))
+        }
         val view: View = inflater.inflate(R.layout.search_fragment, container, false)
-        val activity = activity as Context
         val recyclerView = view.findViewById<RecyclerView>(R.id.search_rv)
         val fab = view.findViewById<FloatingActionButton>(R.id.search_fab)
 
-        searchAdapter = SearchAdapter(activity)
+        searchAdapter = SearchAdapter(requireContext())
         {cardItem: Card -> cardItemClicked(cardItem)}
-        recyclerView.layoutManager = GridLayoutManager(activity, 2)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = searchAdapter
         viewModel.searchCardsLiveData.observe(viewLifecycleOwner, Observer { cards ->
             cards?.let { searchAdapter.loadCards(it)}
