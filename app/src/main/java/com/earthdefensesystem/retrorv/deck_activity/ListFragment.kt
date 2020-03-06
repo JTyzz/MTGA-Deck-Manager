@@ -51,7 +51,9 @@ class ListFragment : Fragment() {
             decks?.let { listAdapter.loadDecks(it)
             listAdapter.notifyDataSetChanged()}
         })
-
+        viewModel.deckNames.observe(this, Observer {
+            viewModel.deckNamesAgain = it.toMutableList()
+        })
 
         fab.setOnClickListener {
             makeAlertDialog()
@@ -84,8 +86,8 @@ class ListFragment : Fragment() {
             val word = et.text.toString()
             val time = System.currentTimeMillis()
             val deck = Deck(word, time)
-            viewModel.insert(deck)
             viewModel.checkExistingName(deck)
+            viewModel.insert(deck)
             popupWindow.dismiss()
         }
 
@@ -106,5 +108,6 @@ class ListFragment : Fragment() {
         transaction.replace(R.id.bottom_frame, SearchFragment())
         transaction.addToBackStack(null)
         transaction.commit()
+
     }
 }

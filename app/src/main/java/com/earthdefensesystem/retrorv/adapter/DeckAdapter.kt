@@ -8,14 +8,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Card
-import com.earthdefensesystem.retrorv.model.Cards
 import kotlinx.android.synthetic.main.card_front_item.view.*
 import kotlinx.android.synthetic.main.card_list_item.view.*
 
-class DeckAdapter (context: Context, val clickListener: (Cards) -> Unit) : RecyclerView.Adapter<DeckAdapter.ViewHolder>() {
+class DeckAdapter (context: Context, val clickListener: (Card) -> Unit) : RecyclerView.Adapter<DeckAdapter.ViewHolder>() {
 
     var onItemClick: ((position: Int, view: View) -> Unit)? = null
-    private var cards = emptyList<Cards>()
+    private var cards = emptyList<Card>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -32,14 +31,14 @@ class DeckAdapter (context: Context, val clickListener: (Cards) -> Unit) : Recyc
         return cards.size
     }
 
-    internal fun loadCards(cards: List<Cards>) {
+    internal fun loadCards(cards: List<Card>) {
         this.cards = cards
         notifyDataSetChanged()
     }
 
     class ViewHolder(containerView: View) : RecyclerView.ViewHolder(containerView) {
 
-        fun bind(card: Cards, clickListener: (Cards) -> Unit) {
+        fun bind(card: Card, clickListener: (Card) -> Unit) {
             itemView.setOnClickListener { clickListener(card) }
             itemView.card_name.text = card.name
             itemView.card_mana.text = card.cmc.toString()

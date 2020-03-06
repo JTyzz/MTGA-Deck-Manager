@@ -8,8 +8,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Deck::class, Cards::class, DeckCardJoin::class],
-          version = 1, exportSchema = false)
+@Database(
+    entities = [Deck::class, Card::class, DeckCardJoin::class],
+    version = 1, exportSchema = false
+)
 @TypeConverters(StringListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -37,11 +39,12 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         //places New Deck as first entry when db is created
+        //TODO change onOpen to OnCreate so it doesnt delete database every time
         private class DeckDatabaseCallback(
             private val scope: CoroutineScope
         ) : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(database.deckDao())
@@ -49,8 +52,10 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
         }
-        suspend fun populateDatabase( deckDao: DeckDao){
+
+        suspend fun populateDatabase(deckDao: DeckDao) {
             deckDao.deleteAll()
+            deckDao.insertDeck(Deck("Sample Deck", 1, 1))
         }
     }
 }

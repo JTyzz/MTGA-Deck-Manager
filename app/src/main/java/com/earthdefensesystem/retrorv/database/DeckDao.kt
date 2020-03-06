@@ -2,10 +2,7 @@ package com.earthdefensesystem.retrorv.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.earthdefensesystem.retrorv.model.Cards
-import com.earthdefensesystem.retrorv.model.Deck
-import com.earthdefensesystem.retrorv.model.DeckCardJoin
-import com.earthdefensesystem.retrorv.model.DecksWithCards
+import com.earthdefensesystem.retrorv.model.*
 
 @Dao
 interface DeckDao {
@@ -14,6 +11,9 @@ interface DeckDao {
 
     @Query("SELECT * FROM deck_table ORDER BY date ASC")
     fun getDecks(): List<Deck>
+
+    @Query("SELECT name from deck_table")
+    fun getNames(): LiveData<List<String>>
 
     @Transaction
     @Query("SELECT * FROM deck_table")
@@ -27,10 +27,10 @@ interface DeckDao {
     suspend fun insertDeck(deck: Deck)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCard(cards: Cards)
+    suspend fun insertCard(cards: Card)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCardList(list: List<Cards>)
+    suspend fun insertCardList(list: List<Card>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRelation(deckCardJoin: DeckCardJoin)

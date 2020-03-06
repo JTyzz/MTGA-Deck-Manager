@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckDao
-import com.earthdefensesystem.retrorv.model.Cards
+import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.Deck
 import com.earthdefensesystem.retrorv.model.DeckCardJoin
 import kotlinx.coroutines.runBlocking
@@ -48,7 +48,8 @@ class DatabaseTests {
         runBlocking {
             deckDao.insertDeck(deck)
         }
-        val card = Cards("1", "Card 1")
+        val card = Card(null,null,"1", null, "Card 1" ,
+            null,null,null,null,null,0)
         runBlocking {
             deckDao.insertCard(card)
         }
@@ -72,7 +73,8 @@ class DatabaseTests {
         runBlocking {
             deckDao.insertDeck(deck2)
         }
-        val card = Cards("1", "Card 2")
+        val card = Card(null,null,"1", null, "Card 2" ,
+            null,null,null,null,null,0)
         runBlocking {
             deckDao.insertCard(card)
         }

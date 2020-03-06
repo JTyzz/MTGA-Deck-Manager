@@ -57,6 +57,7 @@ class SearchFragment : Fragment() {
 
     private fun cardItemClicked(cardItem: Card){
         Toast.makeText(requireContext(), "Clicked: ${cardItem.name}", Toast.LENGTH_LONG).show()
+        viewModel.addCardtoDeck(cardItem, viewModel.openDeck.value!!.deckId!!, 4)
     }
 
     private fun showSearchDialog() {

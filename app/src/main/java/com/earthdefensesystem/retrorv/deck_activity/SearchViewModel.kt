@@ -1,18 +1,20 @@
 package com.earthdefensesystem.retrorv.deck_activity
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.Card
-import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.model.Deck
+import com.earthdefensesystem.retrorv.model.DeckCardJoin
 import com.earthdefensesystem.retrorv.rest.ApiFactory
 import com.earthdefensesystem.retrorv.rest.SearchRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -24,10 +26,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         get() = parentJob + Dispatchers.Default
     private val scope = CoroutineScope(coroutineContext)
 
+    //search fragment
     val searchCardsLiveData = MutableLiveData<List<Card>>()
-    val deckCardsLiveData = MutableLiveData<List<Cards>>()
+    val deckCardsLiveData = MutableLiveData<List<Card>>()
+
+    //list fragment
+    var deckNamesLD: LiveData<List<String>>
+    var deckNames: MutableList<String> = mutableListOf()
     var allLDDecks: LiveData<List<Deck>>
-    val allCards = MutableLiveData<List<Cards>>()
+
+    //deck fragment
+    val allCards = MutableLiveData<List<Card>>()
     val openDeck = MutableLiveData<Deck>()
 
 
@@ -36,6 +45,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val deckDao = AppDatabase.getDatabase(application, viewModelScope).deckDao()
         repo = DeckRepo(deckDao)
         allLDDecks = repo.allLDDecks
+        deckNamesLD = repo.deckNames
     }
 
     fun getCardsByDeckId(deckId: Long) {
@@ -56,21 +66,35 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    //checks name of deck and increments name by 1 if it exists
     fun checkExistingName(deck: Deck): Deck {
-        val deckName = deck.name
-        var deckCount = 0
+        var deckName = deck.name
+        Log.d("salami", "initial $deckName")
+        var count = 0
         fun checkNames() {
-            if (allLDDecks.value!!.contains(Deck(deckName))) {
-                deckCount++
-                checkNames()
+            if (deckNames.contains(deckName)) {
+                count++
+//                if (deckNames.value!!.contains(deckName.plus(count))) {
+                if (deckNames.contains(deckName.plus(count))) {
+                    Log.d("salami", count.toString())
+                    checkNames()
+                }
             }
         }
         checkNames()
-        if (deckCount != 0) {
-            deck.name = deckName.plus(deckCount)
+        if (count != 0) {
+            deckName = deckName.plus(count)
+            deck.name = deckName
+            Log.d("salami", "changed ${deck.name}")
         }
-
         return deck
+    }
+
+    fun addCardtoDeck(card: Card, deckId: Long, count: Int) = viewModelScope.launch {
+        card.count = count
+        repo.insertCard(card)
+        val junction = DeckCardJoin(card.id!!, deckId)
+        repo.insertRelation(junction)
     }
 
     fun setDeck(deck: Deck) {
