@@ -16,22 +16,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/card_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This card makes water boil slightly faster"
-        android:paddingTop="5dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card_name" />
-
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@android:color/darker_gray"
         android:paddingTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_text" />
+        app:layout_constraintTop_toBottomOf="@id/card_name" />
 
     <TextView
         android:id="@+id/card_mana"

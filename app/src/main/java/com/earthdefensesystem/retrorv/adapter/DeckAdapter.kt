@@ -5,21 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Card
+import com.earthdefensesystem.retrorv.model.Cards
 import kotlinx.android.synthetic.main.card_front_item.view.*
+import kotlinx.android.synthetic.main.card_list_item.view.*
 
-class SearchAdapter internal constructor(context: Context, val clickListener: (Card) -> Unit) :
-    RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
+class DeckAdapter (context: Context, val clickListener: (Cards) -> Unit) : RecyclerView.Adapter<DeckAdapter.ViewHolder>() {
 
-    private var cards = emptyList<Card>()
     var onItemClick: ((position: Int, view: View) -> Unit)? = null
+    private var cards = emptyList<Cards>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
-            LayoutInflater.from(parent.context).inflate(R.layout.card_front_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.card_list_item, parent, false)
         return ViewHolder(itemView)
     }
 
@@ -32,24 +32,18 @@ class SearchAdapter internal constructor(context: Context, val clickListener: (C
         return cards.size
     }
 
-    internal fun loadCards(cards: List<Card>) {
+    internal fun loadCards(cards: List<Cards>) {
         this.cards = cards
         notifyDataSetChanged()
     }
 
     class ViewHolder(containerView: View) : RecyclerView.ViewHolder(containerView) {
 
-        fun bind(card: Card, clickListener: (Card) -> Unit) {
+        fun bind(card: Cards, clickListener: (Cards) -> Unit) {
             itemView.setOnClickListener { clickListener(card) }
-            Glide.with(itemView.context)
-                .load(card.imageUris?.small)
-                .into(itemView.card_iv)
+            itemView.card_name.text = card.name
+            itemView.card_mana.text = card.cmc.toString()
         }
 
     }
-
-    fun spannableImage(inputText: String) {
-
-    }
 }
-

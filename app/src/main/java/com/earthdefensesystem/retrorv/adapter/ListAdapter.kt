@@ -1,20 +1,16 @@
 package com.earthdefensesystem.retrorv.adapter
 
-import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
-import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.model.Deck
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
 
 
-class DeckListAdapter internal constructor(context: Context, val clickListener: (Deck) -> Unit) : RecyclerView.Adapter<DeckListAdapter.ViewHolder>() {
+class ListAdapter internal constructor(context: Context, val clickListener: (Deck) -> Unit) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
     private var decks = emptyList<Deck>()
     private val inflater: LayoutInflater = LayoutInflater.from(context)

@@ -1,36 +1,50 @@
 package com.earthdefensesystem.retrorv.deck_activity
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
-import com.earthdefensesystem.retrorv.model.Card
+import com.earthdefensesystem.retrorv.model.Cards
 import com.earthdefensesystem.retrorv.model.Deck
-import com.earthdefensesystem.retrorv.rest.ApiFactory
-import com.earthdefensesystem.retrorv.rest.SearchRepo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
-class DeckViewModel (application: Application) : AndroidViewModel(application) {
-    private val repo: SearchRepo = SearchRepo(ApiFactory.apiService)
+abstract class DeckViewModel (application: Application) : AndroidViewModel(application) {
+    //reference to repo to get data
+    private val deckId: Long? = null
+    private val repo: DeckRepo
 
-    private val parentJob = Job()
+    //livedata updates list as it changes
+    val allCards = MutableLiveData<List<Cards>>()
+    var allLDDecks: LiveData<List<Deck>>
+    abstract var openDeck: Deck
 
-    private val coroutineContext: CoroutineContext
-        get() = parentJob + Dispatchers.Default
 
-    private val scope = CoroutineScope(coroutineContext)
+    init {
+        //get reference to deckdao from appdatabase to construct deckrepo
+        val deckDao = AppDatabase.getDatabase(application, viewModelScope).deckDao()
+        repo = DeckRepo(deckDao)
+        allLDDecks = repo.allLDDecks
+    }
 
-    val searchCardsLiveData = MutableLiveData<List<Card>>()
 
-    fun getCardsSearch(color: String){
-        scope.launch {
-            val searchCards = repo.getSearchCards(color)
-            searchCards?.removeIf{ it.imageUris?.small == null}
-            searchCardsLiveData.postValue(searchCards)
+    //viewmodel specific coroutine scope for threads so insert doesnt block ui
+    fun insert(deck: Deck) = viewModelScope.launch {
+        repo.insertDeck(deck)
+    }
+    fun checkExistingName(deck: Deck) : Deck {
+        val deckName = deck.name
+        var deckCount = 0
+        fun checkNames(){
+            if (allLDDecks.value!!.contains(Deck(deckName))) {
+                deckCount++
+                checkNames()
+            }
         }
+        checkNames()
+        deck.name = deckName.plus(deckCount)
+        return deck
     }
 }
