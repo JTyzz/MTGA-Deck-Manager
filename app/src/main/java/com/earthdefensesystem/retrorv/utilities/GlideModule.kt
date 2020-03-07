@@ -1,8 +1,7 @@
-package com.earthdefensesystem.retrorv.glide
+package com.earthdefensesystem.retrorv.utilities
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -17,7 +16,6 @@ class GlideApp : AppGlideModule() {
         builder.apply {
             val requests = RequestOptions()
                 .fitCenter().override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                .placeholder(context.getCircularProgressDrawable())
                 .dontTransform()
 
             setDefaultRequestOptions(requests)

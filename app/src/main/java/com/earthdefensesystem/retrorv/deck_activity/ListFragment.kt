@@ -1,9 +1,6 @@
 package com.earthdefensesystem.retrorv.deck_activity
 
-import android.content.Context
 import android.os.Bundle
-import android.transition.Slide
-import android.transition.TransitionManager
 import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
@@ -11,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -20,10 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.ListAdapter
-import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.Deck
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.deck_activity.*
 
 class ListFragment : Fragment() {
 
@@ -51,8 +44,8 @@ class ListFragment : Fragment() {
             decks?.let { listAdapter.loadDecks(it)
             listAdapter.notifyDataSetChanged()}
         })
-        viewModel.deckNames.observe(this, Observer {
-            viewModel.deckNamesAgain = it.toMutableList()
+        viewModel.deckNamesLD.observe(this, Observer {
+            viewModel.deckNames = it.toMutableList()
         })
 
         fab.setOnClickListener {
@@ -71,8 +64,8 @@ class ListFragment : Fragment() {
     private fun makeAlertDialog(){
         // inflate popup view
         val view = LayoutInflater.from(activity).inflate(R.layout.new_deck_popup, null)
-        val et = view.findViewById<EditText>(R.id.deck_name_et)
-        val buttonPopup = view.findViewById<Button>(R.id.button_popup)
+        val et = view.findViewById<EditText>(R.id.nd_name_et)
+        val buttonPopup = view.findViewById<Button>(R.id.nd_popup_close_btn)
 
         // new popupwindow instance
         val popupWindow = PopupWindow(
@@ -87,7 +80,7 @@ class ListFragment : Fragment() {
             val time = System.currentTimeMillis()
             val deck = Deck(word, time)
             viewModel.checkExistingName(deck)
-            viewModel.insert(deck)
+            viewModel.insertDeck(deck)
             popupWindow.dismiss()
         }
 

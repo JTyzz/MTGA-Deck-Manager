@@ -8,13 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Card
+import com.earthdefensesystem.retrorv.model.CardCount
 import kotlinx.android.synthetic.main.card_front_item.view.*
 import kotlinx.android.synthetic.main.card_list_item.view.*
 
-class DeckAdapter (context: Context, val clickListener: (Card) -> Unit) : RecyclerView.Adapter<DeckAdapter.ViewHolder>() {
+class DeckAdapter (context: Context, val clickListener: (CardCount) -> Unit) : RecyclerView.Adapter<DeckAdapter.ViewHolder>() {
 
     var onItemClick: ((position: Int, view: View) -> Unit)? = null
-    private var cards = emptyList<Card>()
+    private var cards = emptyList<CardCount>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -31,17 +32,17 @@ class DeckAdapter (context: Context, val clickListener: (Card) -> Unit) : Recycl
         return cards.size
     }
 
-    internal fun loadCards(cards: List<Card>) {
+    internal fun loadCards(cards: List<CardCount>) {
         this.cards = cards
         notifyDataSetChanged()
     }
 
     class ViewHolder(containerView: View) : RecyclerView.ViewHolder(containerView) {
 
-        fun bind(card: Card, clickListener: (Card) -> Unit) {
-            itemView.setOnClickListener { clickListener(card) }
-            itemView.card_name.text = card.name
-            itemView.card_mana.text = card.cmc.toString()
+        fun bind(carditem: CardCount, clickListener: (CardCount) -> Unit) {
+            itemView.setOnClickListener { clickListener(carditem) }
+            itemView.card_name.text = carditem.card.name
+            itemView.card_mana.text = carditem.count.toString()
         }
 
     }

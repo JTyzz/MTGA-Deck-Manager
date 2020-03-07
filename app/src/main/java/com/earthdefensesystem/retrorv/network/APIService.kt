@@ -1,4 +1,4 @@
-package com.earthdefensesystem.retrorv.rest
+package com.earthdefensesystem.retrorv.network
 
 import retrofit2.Call
 import com.earthdefensesystem.retrorv.model.Base

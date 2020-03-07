@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/deckcard_popup_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#c7bf98"
+    android:padding="20dp">
+
+
+    <Button
+        android:id="@+id/dc_popup_art_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set art as deck background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dc_popup_close_btn" />
+
+    <Button
+        android:id="@+id/dc_popup_close_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close Me"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/card_count_et" />
+
+    <EditText
+        android:id="@+id/card_count_et"
+        android:layout_width="61dp"
+        android:layout_height="48dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

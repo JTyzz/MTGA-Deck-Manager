@@ -39,8 +39,8 @@ class SearchFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.search_rv)
         val fab = view.findViewById<FloatingActionButton>(R.id.search_fab)
 
-        searchAdapter = SearchAdapter(requireContext())
-        {cardItem: Card -> cardItemClicked(cardItem)}
+        searchAdapter = SearchAdapter(requireContext()) {
+                cardItem: Card -> cardItemClicked(cardItem)}
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = searchAdapter
         viewModel.searchCardsLiveData.observe(viewLifecycleOwner, Observer { cards ->
@@ -57,7 +57,7 @@ class SearchFragment : Fragment() {
 
     private fun cardItemClicked(cardItem: Card){
         Toast.makeText(requireContext(), "Clicked: ${cardItem.name}", Toast.LENGTH_LONG).show()
-        viewModel.addCardtoDeck(cardItem, viewModel.openDeck.value!!.deckId!!, 4)
+        viewModel.insertCardtoDeck(cardItem, viewModel.openDeck.value!!.deckId!!, 4)
     }
 
     private fun showSearchDialog() {

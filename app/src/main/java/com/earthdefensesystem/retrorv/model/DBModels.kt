@@ -36,7 +36,6 @@ data class Card(
     var typeLine: String?,
     @SerializedName("oracle_text")
     var oracleText: String?,
-    var count: Int,
     @Ignore
     @SerializedName("image_uris")
     var imageUris: ImageUris?
@@ -52,14 +51,24 @@ data class Card(
         cardSet: String?,
         setRelease: String?,
         typeLine: String?,
-        oracleText: String?,
-        count: Int
+        oracleText: String?
     ) : this(
         cmc, colors, id, manaCost, name,
         rarity, cardSet, setRelease, typeLine,
-        oracleText, count, null
+        oracleText, null
     )
 }
+
+//class to allow decks to have different amounts of one card object
+@Entity(tableName = "cc_table")
+data class CardCount(
+    @ColumnInfo(name = "cc_id", index = true)
+    @PrimaryKey
+    val id: String,
+    val count: Int,
+    @Embedded
+    val card: Card
+)
 
 
 data class ImageUris(
@@ -82,7 +91,7 @@ data class ImageUris(
 data class Deck(
     var name: String,
     var date: Long? = null,
-    @ColumnInfo(index = true)
+    @ColumnInfo(name = "deck_id", index = true)
     @PrimaryKey(autoGenerate = true)
     var deckId: Long? = null,
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
@@ -90,11 +99,11 @@ data class Deck(
 )
 
 //junction between card and deck
-@Entity(primaryKeys = ["deckId", "cardId"])
+@Entity(primaryKeys = ["deck_id", "cc_id"])
 data class DeckCardJoin(
-    @ColumnInfo(name = "cardId", index = true)
-    val cardId: String,
-    @ColumnInfo(name = "deckId", index = true)
+    @ColumnInfo(name = "cc_id", index = true)
+    val CCId: String,
+    @ColumnInfo(name = "deck_id", index = true)
     val deckId: Long
 )
 
@@ -102,11 +111,11 @@ data class DeckCardJoin(
 data class DecksWithCards(
     @Embedded val deck: Deck,
     @Relation(
-        parentColumn = "deckId",
-        entityColumn = "cardId",
+        parentColumn = "deck_id",
+        entityColumn = "cc_id",
         associateBy = Junction(DeckCardJoin::class)
     )
-    val cards: List<Card>
+    val cards: List<CardCount>
 )
 
 class StringListConverter {

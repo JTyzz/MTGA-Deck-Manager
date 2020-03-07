@@ -6,15 +6,15 @@ import androidx.lifecycle.*
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.Card
+import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.model.Deck
 import com.earthdefensesystem.retrorv.model.DeckCardJoin
-import com.earthdefensesystem.retrorv.rest.ApiFactory
-import com.earthdefensesystem.retrorv.rest.SearchRepo
+import com.earthdefensesystem.retrorv.network.ApiFactory
+import com.earthdefensesystem.retrorv.network.SearchRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -28,7 +28,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     //search fragment
     val searchCardsLiveData = MutableLiveData<List<Card>>()
-    val deckCardsLiveData = MutableLiveData<List<Card>>()
 
     //list fragment
     var deckNamesLD: LiveData<List<String>>
@@ -36,7 +35,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     var allLDDecks: LiveData<List<Deck>>
 
     //deck fragment
-    val allCards = MutableLiveData<List<Card>>()
+    val deckCardsLiveData = MutableLiveData<List<CardCount>>()
     val openDeck = MutableLiveData<Deck>()
 
 
@@ -49,13 +48,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun getCardsByDeckId(deckId: Long) {
-        val listCards = repo.getDeckById(deckId).cards
-        deckCardsLiveData.postValue(listCards)
+        scope.launch {
+            val listCards = repo.getDeckById(deckId)
+                openDeck.postValue(listCards.deck)
+                deckCardsLiveData.postValue(listCards.cards)
+        }
     }
 
     //viewmodel specific coroutine scope for threads so insert doesnt block ui
-    fun insert(deck: Deck) = viewModelScope.launch {
+    fun insertDeck(deck: Deck) = viewModelScope.launch {
         repo.insertDeck(deck)
+    }
+
+    fun insertCardtoDeck(card: Card, deckId: Long, count: Int) = viewModelScope.launch {
+        val cardCount = CardCount(card.id, count, card)
+        repo.insertCard(card)
+        repo.insertCardCount(cardCount)
+        val junction = DeckCardJoin(cardCount.id, deckId)
+        repo.insertRelation(junction)
+    }
+
+    fun changeCardCount(oldCard: CardCount, count: Int) = viewModelScope.launch{
+        val newCardCount = CardCount(oldCard.id, count, oldCard.card)
+        repo.insertCardCount(newCardCount)
     }
 
     fun getCardsSearch(color: String) {
@@ -90,12 +105,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return deck
     }
 
-    fun addCardtoDeck(card: Card, deckId: Long, count: Int) = viewModelScope.launch {
-        card.count = count
-        repo.insertCard(card)
-        val junction = DeckCardJoin(card.id!!, deckId)
-        repo.insertRelation(junction)
-    }
 
     fun setDeck(deck: Deck) {
         openDeck.value = deck

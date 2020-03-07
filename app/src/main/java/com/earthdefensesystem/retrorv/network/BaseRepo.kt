@@ -1,4 +1,4 @@
-package com.earthdefensesystem.retrorv.rest
+package com.earthdefensesystem.retrorv.network
 
 import android.util.Log
 import retrofit2.Response

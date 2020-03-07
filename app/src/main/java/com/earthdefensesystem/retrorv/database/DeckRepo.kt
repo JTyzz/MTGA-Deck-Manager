@@ -21,6 +21,10 @@ class DeckRepo(private val deckDao: DeckDao) {
         deckDao.insertDeck(deck)
     }
 
+    suspend fun insertCardCount(cardCount: CardCount){
+        deckDao.insertCardCount(cardCount)
+    }
+
     suspend fun insertCard(cards: Card) {
         deckDao.insertCard(cards)
     }

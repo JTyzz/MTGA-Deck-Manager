@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/linear_layout"
+    android:id="@+id/newdeck_popup_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#c7bf98"
     android:padding="20dp">
     <EditText
-        android:id="@+id/deck_name_et"
+        android:id="@+id/nd_name_et"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:focusable="true"
@@ -22,11 +22,11 @@
         />
 
     <Button
-        android:id="@+id/button_popup"
+        android:id="@+id/nd_popup_close_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Close Me"
-        app:layout_constraintStart_toEndOf="@+id/deck_name_et"
-        app:layout_constraintTop_toBottomOf="@id/deck_name_et" />
+        app:layout_constraintStart_toEndOf="@+id/nd_name_et"
+        app:layout_constraintTop_toBottomOf="@id/nd_name_et" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

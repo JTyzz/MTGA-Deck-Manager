@@ -20,7 +20,7 @@ interface DeckDao {
     fun getDecksWithCards(): List<DecksWithCards>
 
     @Transaction
-    @Query("SELECT * FROM deck_table WHERE deckId = :deckId")
+    @Query("SELECT * FROM deck_table WHERE deck_id = :deckId")
     fun getDeckWithCardsById(deckId: Long): DecksWithCards
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -28,6 +28,9 @@ interface DeckDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCard(cards: Card)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCardCount(cardCount: CardCount)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCardList(list: List<Card>)

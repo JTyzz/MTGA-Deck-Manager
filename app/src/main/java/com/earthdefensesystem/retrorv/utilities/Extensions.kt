@@ -1,4 +1,4 @@
-package com.earthdefensesystem.retrorv.glide
+package com.earthdefensesystem.retrorv.utilities
 
 import android.content.Context
 import android.graphics.PorterDuff
@@ -37,10 +37,10 @@ inline fun <T : Any> makeLoadingRequestListener(
     }
 }
 
-fun Context.getCircularProgressDrawable(): CircularProgressDrawable = CircularProgressDrawable(this).apply {
-    setColorFilter(resources.getColor(R.color.colorPrimaryDark), PorterDuff.Mode.SRC_ATOP)
-    strokeWidth = 7f
-    centerRadius = 20f
-}.also {
-    it.start()
-}
+//fun Context.getCircularProgressDrawable(): CircularProgressDrawable = CircularProgressDrawable(this).apply {
+//    setColorFilter(resources.getColor(R.color.colorPrimaryDark), PorterDuff.Mode.SRC_ATOP)
+//    strokeWidth = 7f
+//    centerRadius = 20f
+//}.also {
+//    it.start()
+//}
