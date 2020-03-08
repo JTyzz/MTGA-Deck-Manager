@@ -1,6 +1,5 @@
 package com.earthdefensesystem.retrorv.deck_activity
 
-import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -26,7 +25,6 @@ class SearchFragment : Fragment() {
     }
 
     private lateinit var viewModel: SearchViewModel
-    private lateinit var searchAdapter: SearchAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +37,7 @@ class SearchFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.search_rv)
         val fab = view.findViewById<FloatingActionButton>(R.id.search_fab)
 
-        searchAdapter = SearchAdapter(requireContext()) {
+        val searchAdapter = SearchAdapter(requireContext()) {
                 cardItem: Card -> cardItemClicked(cardItem)}
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = searchAdapter

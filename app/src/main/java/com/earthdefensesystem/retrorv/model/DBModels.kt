@@ -11,17 +11,14 @@ data class Base(
     val cards: List<Card>
 )
 
-@Entity(tableName = "card_table")
 data class Card(
     @SerializedName("cmc")
     var cmc: Int?,
     @TypeConverters(StringListConverter::class)
     @SerializedName("colors")
     var colors: List<String>?,
-    @PrimaryKey
-    @ColumnInfo(name = "cardId", index = true)
     @SerializedName("id")
-    var id: String,
+    var cardId: String,
     @SerializedName("mana_cost")
     var manaCost: String?,
     @SerializedName("name")
@@ -44,7 +41,7 @@ data class Card(
     constructor(
         cmc: Int?,
         colors: List<String>?,
-        id: String,
+        cardId: String,
         manaCost: String?,
         name: String,
         rarity: String?,
@@ -53,7 +50,7 @@ data class Card(
         typeLine: String?,
         oracleText: String?
     ) : this(
-        cmc, colors, id, manaCost, name,
+        cmc, colors, cardId, manaCost, name,
         rarity, cardSet, setRelease, typeLine,
         oracleText, null
     )
@@ -68,6 +65,17 @@ data class CardCount(
     val count: Int,
     @Embedded
     val card: Card
+)
+
+
+@Entity(tableName = "deck_table")
+data class Deck(
+    var name: String,
+    var date: Long? = null,
+    @ColumnInfo(name = "deck_id", index = true)
+    @PrimaryKey(autoGenerate = true)
+    var deckId: Long? = null,
+    var uri: String? = null
 )
 
 
@@ -87,16 +95,6 @@ data class ImageUris(
 )
 
 
-@Entity(tableName = "deck_table")
-data class Deck(
-    var name: String,
-    var date: Long? = null,
-    @ColumnInfo(name = "deck_id", index = true)
-    @PrimaryKey(autoGenerate = true)
-    var deckId: Long? = null,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    var deckImg: ByteArray? = null
-)
 
 //junction between card and deck
 @Entity(primaryKeys = ["deck_id", "cc_id"])

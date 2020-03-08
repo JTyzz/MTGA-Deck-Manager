@@ -1,16 +1,19 @@
 package com.earthdefensesystem.retrorv.deck_activity
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.lifecycle.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
-import com.earthdefensesystem.retrorv.model.Card
-import com.earthdefensesystem.retrorv.model.CardCount
-import com.earthdefensesystem.retrorv.model.Deck
-import com.earthdefensesystem.retrorv.model.DeckCardJoin
+import com.earthdefensesystem.retrorv.model.*
 import com.earthdefensesystem.retrorv.network.ApiFactory
 import com.earthdefensesystem.retrorv.network.SearchRepo
+import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,6 +23,7 @@ import kotlin.coroutines.CoroutineContext
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val searchRepo: SearchRepo = SearchRepo(ApiFactory.apiService)
     private val repo: DeckRepo
+    private val context = application.applicationContext
 
     private val parentJob = Job()
     private val coroutineContext: CoroutineContext
@@ -35,6 +39,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     var allLDDecks: LiveData<List<Deck>>
 
     //deck fragment
+    val openDeckCard = MutableLiveData<DecksWithCards>()
     val deckCardsLiveData = MutableLiveData<List<CardCount>>()
     val openDeck = MutableLiveData<Deck>()
 
@@ -49,9 +54,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getCardsByDeckId(deckId: Long) {
         scope.launch {
-            val listCards = repo.getDeckById(deckId)
-                openDeck.postValue(listCards.deck)
-                deckCardsLiveData.postValue(listCards.cards)
+            val repoDeck = repo.getDeckById(deckId)
+                openDeckCard.postValue(repoDeck)
         }
     }
 
@@ -61,16 +65,32 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun insertCardtoDeck(card: Card, deckId: Long, count: Int) = viewModelScope.launch {
-        val cardCount = CardCount(card.id, count, card)
-        repo.insertCard(card)
+        val cardCount = CardCount(card.cardId, count, card)
         repo.insertCardCount(cardCount)
         val junction = DeckCardJoin(cardCount.id, deckId)
         repo.insertRelation(junction)
     }
 
-    fun changeCardCount(oldCard: CardCount, count: Int) = viewModelScope.launch{
+    fun updateCardCount(oldCard: CardCount, count: Int) = viewModelScope.launch{
         val newCardCount = CardCount(oldCard.id, count, oldCard.card)
         repo.insertCardCount(newCardCount)
+    }
+
+    fun updateDeckBackground(deck: Deck, cardCount: CardCount) = viewModelScope.launch {
+        Glide.with(context)
+            .asBitmap()
+            .load(cardCount.card.imageUris?.artCrop)
+            .into(object : CustomTarget<Bitmap>(){
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    ImageStoreManager.saveToInternalStorage(context, resource,cardCount.card.cardId)
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+            })
+        repo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
+
     }
 
     fun getCardsSearch(color: String) {

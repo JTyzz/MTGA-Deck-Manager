@@ -15,7 +15,6 @@ class SearchAdapter internal constructor(context: Context, val clickListener: (C
     RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
     private var cards = emptyList<Card>()
-    var onItemClick: ((position: Int, view: View) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =

@@ -13,10 +13,6 @@ class DeckRepo(private val deckDao: DeckDao) {
         return deckDao.getDeckWithCardsById(deckId)
     }
 
-    suspend fun insertCardList(list: List<Card>) {
-        deckDao.insertCardList(list)
-    }
-
     suspend fun insertDeck(deck: Deck) {
         deckDao.insertDeck(deck)
     }
@@ -25,12 +21,12 @@ class DeckRepo(private val deckDao: DeckDao) {
         deckDao.insertCardCount(cardCount)
     }
 
-    suspend fun insertCard(cards: Card) {
-        deckDao.insertCard(cards)
-    }
-
     suspend fun insertRelation(relation: DeckCardJoin){
         deckDao.insertRelation(relation)
+    }
+
+    suspend fun updateDeckBackground(deckId: Long, imageUri: String){
+        deckDao.updateDeckBackground(deckId, imageUri)
     }
 
     fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)

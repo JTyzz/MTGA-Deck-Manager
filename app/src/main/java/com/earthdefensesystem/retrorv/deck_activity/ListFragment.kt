@@ -40,11 +40,11 @@ class ListFragment : Fragment() {
         recyclerView.adapter = listAdapter
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2) as RecyclerView.LayoutManager?
 
-        viewModel.allLDDecks.observe(this, Observer { decks ->
+        viewModel.allLDDecks.observe(viewLifecycleOwner, Observer { decks ->
             decks?.let { listAdapter.loadDecks(it)
             listAdapter.notifyDataSetChanged()}
         })
-        viewModel.deckNamesLD.observe(this, Observer {
+        viewModel.deckNamesLD.observe(viewLifecycleOwner, Observer {
             viewModel.deckNames = it.toMutableList()
         })
 
@@ -55,9 +55,8 @@ class ListFragment : Fragment() {
     }
     private fun listItemClicked(deckItem: Deck){
         Log.d("salami", deckItem.name)
-        viewModel.setDeck(deckItem)
-        Log.d("salami", viewModel.openDeck.value?.name
-        )
+        viewModel.getCardsByDeckId(deckItem.deckId!!)
+//        Log.d("salami", viewModel.openDeck.value?.name)
         toDeckFragment()
     }
 
@@ -92,11 +91,11 @@ class ListFragment : Fragment() {
          popupWindow.showAtLocation(view, Gravity.CENTER,0,0)
     }
     fun toDeckFragment() {
-        val transaction = activity!!.supportFragmentManager.beginTransaction()
+        val transaction = requireActivity().supportFragmentManager.beginTransaction()
         transaction.remove(ListFragment())
-        activity!!.findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
-        activity!!.findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.VISIBLE
-        activity!!.findViewById<FrameLayout>(R.id.screen_frame).visibility = View.GONE
+        requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
+        requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.VISIBLE
+        requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility = View.GONE
         transaction.replace(R.id.top_frame, DeckFragment())
         transaction.replace(R.id.bottom_frame, SearchFragment())
         transaction.addToBackStack(null)

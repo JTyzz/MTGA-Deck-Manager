@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Deck
+import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
 
 
@@ -33,10 +35,17 @@ class ListAdapter internal constructor(context: Context, val clickListener: (Dec
         notifyDataSetChanged()
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         fun bind(deck: Deck, clickListener: (Deck) -> Unit){
             itemView.deck_tv.text = deck.name
             itemView.setOnClickListener { clickListener(deck) }
+            if (deck.uri != null){
+                val bitmap = ImageStoreManager
+                .getImageFromInternalStorage(itemView.context, deck.uri!!)
+            Glide.with(itemView.context)
+                .load(bitmap)
+                .into(itemView.deck_iv)
+            }
         }
 
     }

@@ -1,5 +1,6 @@
 package com.earthdefensesystem.retrorv.network
 
+import android.content.Context
 import com.earthdefensesystem.retrorv.model.Card
 
 class SearchRepo(private val api: APIService) : BaseRepo() {

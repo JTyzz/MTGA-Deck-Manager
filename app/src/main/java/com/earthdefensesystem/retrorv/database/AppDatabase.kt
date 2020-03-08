@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Deck::class, Card::class, CardCount::class, DeckCardJoin::class],
+    entities = [Deck::class, CardCount::class, DeckCardJoin::class],
     version = 1, exportSchema = false
 )
 @TypeConverters(StringListConverter::class)
