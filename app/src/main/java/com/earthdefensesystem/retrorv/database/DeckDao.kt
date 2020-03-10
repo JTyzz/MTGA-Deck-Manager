@@ -1,6 +1,7 @@
 package com.earthdefensesystem.retrorv.database
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.earthdefensesystem.retrorv.model.*
 
@@ -21,14 +22,13 @@ interface DeckDao {
 
     @Transaction
     @Query("SELECT * FROM deck_table WHERE deck_id = :deckId")
-    fun getDeckWithCardsById(deckId: Long): DecksWithCards
+    fun getDeckWithCardsById(deckId: Long): LiveData<DecksWithCards>
 
     @Query("UPDATE deck_table SET uri = :imageUri where deck_id = :deckId")
     suspend fun updateDeckBackground(deckId: Long, imageUri: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDeck(deck: Deck)
-
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCardCount(cardCount: CardCount)

@@ -33,28 +33,10 @@ data class Card(
     var typeLine: String?,
     @SerializedName("oracle_text")
     var oracleText: String?,
-    @Ignore
+    @Embedded
     @SerializedName("image_uris")
     var imageUris: ImageUris?
-
-) {
-    constructor(
-        cmc: Int?,
-        colors: List<String>?,
-        cardId: String,
-        manaCost: String?,
-        name: String,
-        rarity: String?,
-        cardSet: String?,
-        setRelease: String?,
-        typeLine: String?,
-        oracleText: String?
-    ) : this(
-        cmc, colors, cardId, manaCost, name,
-        rarity, cardSet, setRelease, typeLine,
-        oracleText, null
-    )
-}
+)
 
 //class to allow decks to have different amounts of one card object
 @Entity(tableName = "cc_table")

@@ -39,9 +39,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     var allLDDecks: LiveData<List<Deck>>
 
     //deck fragment
-    val openDeckCard = MutableLiveData<DecksWithCards>()
-    val deckCardsLiveData = MutableLiveData<List<CardCount>>()
-    val openDeck = MutableLiveData<Deck>()
+    var openDeckCard: LiveData<DecksWithCards>? = null
 
 
     init {
@@ -54,8 +52,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getCardsByDeckId(deckId: Long) {
         scope.launch {
-            val repoDeck = repo.getDeckById(deckId)
-                openDeckCard.postValue(repoDeck)
+            openDeckCard = repo.getDeckById(deckId)
+//                openDeckCard.postValue(repoDeck)
+//                deckCardsLiveData.postValue(openDeckCard.value?.cards)
         }
     }
 
@@ -66,8 +65,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun insertCardtoDeck(card: Card, deckId: Long, count: Int) = viewModelScope.launch {
         val cardCount = CardCount(card.cardId, count, card)
+        Log.d("salami", "${cardCount.card.name} inserted")
         repo.insertCardCount(cardCount)
         val junction = DeckCardJoin(cardCount.id, deckId)
+        Log.d("salami", "${cardCount.card.name} inserted into $deckId")
         repo.insertRelation(junction)
     }
 
@@ -77,16 +78,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun updateDeckBackground(deck: Deck, cardCount: CardCount) = viewModelScope.launch {
+        Log.d("salami", "${deck.name} updating background")
         Glide.with(context)
             .asBitmap()
             .load(cardCount.card.imageUris?.artCrop)
             .into(object : CustomTarget<Bitmap>(){
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     ImageStoreManager.saveToInternalStorage(context, resource,cardCount.card.cardId)
+                    Log.d("salami", "Picture added successfully")
                 }
 
                 override fun onLoadCleared(placeholder: Drawable?) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                 }
             })
         repo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
@@ -125,8 +127,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return deck
     }
 
-
-    fun setDeck(deck: Deck) {
-        openDeck.value = deck
+    fun <T> MutableLiveData <T>.notifyObserver(){
+        this.value = this.value
     }
 }

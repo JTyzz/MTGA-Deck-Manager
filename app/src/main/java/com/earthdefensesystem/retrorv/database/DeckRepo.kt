@@ -1,6 +1,7 @@
 package com.earthdefensesystem.retrorv.database
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.earthdefensesystem.retrorv.model.*
 
 class DeckRepo(private val deckDao: DeckDao) {
@@ -9,7 +10,7 @@ class DeckRepo(private val deckDao: DeckDao) {
     val deckNames: LiveData<List<String>> = deckDao.getNames()
 
     //gets deck object with a list<Cards> by decks id
-    fun getDeckById(deckId: Long): DecksWithCards {
+    fun getDeckById(deckId: Long): LiveData<DecksWithCards> {
         return deckDao.getDeckWithCardsById(deckId)
     }
 

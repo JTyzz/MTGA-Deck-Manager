@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.replace
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.earthdefensesystem.retrorv.R
 
@@ -24,6 +25,9 @@ class DeckActivity : AppCompatActivity(){
         }
         //needed to bind viewmodel to activity to persist between fragments
         val SearchViewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
+
+        SearchViewModel.openDeckCard?.observe(this, Observer {
+        })
     }
 
     //overrides back button press to reset visibilities and fragments

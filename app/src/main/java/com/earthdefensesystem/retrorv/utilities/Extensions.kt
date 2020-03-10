@@ -37,6 +37,7 @@ inline fun <T : Any> makeLoadingRequestListener(
     }
 }
 
+
 //fun Context.getCircularProgressDrawable(): CircularProgressDrawable = CircularProgressDrawable(this).apply {
 //    setColorFilter(resources.getColor(R.color.colorPrimaryDark), PorterDuff.Mode.SRC_ATOP)
 //    strokeWidth = 7f

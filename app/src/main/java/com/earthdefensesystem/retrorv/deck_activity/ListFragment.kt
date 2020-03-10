@@ -54,9 +54,7 @@ class ListFragment : Fragment() {
         return view
     }
     private fun listItemClicked(deckItem: Deck){
-        Log.d("salami", deckItem.name)
         viewModel.getCardsByDeckId(deckItem.deckId!!)
-//        Log.d("salami", viewModel.openDeck.value?.name)
         toDeckFragment()
     }
 
