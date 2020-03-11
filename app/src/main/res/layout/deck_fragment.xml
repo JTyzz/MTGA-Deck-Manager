@@ -10,11 +10,18 @@
     android:backgroundTint="@android:color/holo_green_dark"
     tools:context=".deck_activity.DeckFragment">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/deck_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".6"/>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:clickable="false"
         android:id="@+id/deck_rv"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="@id/deck_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

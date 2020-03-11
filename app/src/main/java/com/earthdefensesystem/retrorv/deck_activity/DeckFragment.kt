@@ -11,6 +11,7 @@ import android.widget.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckAdapter
@@ -41,7 +42,7 @@ class DeckFragment : Fragment() {
         val deckAdapter = DeckAdapter(requireContext()) {
                 cardCount: CardCount -> onItemClick(cardCount) }
         recyclerView.layoutManager =
-            GridLayoutManager(requireContext(), 2) as RecyclerView.LayoutManager?
+            LinearLayoutManager(requireContext())
         recyclerView.adapter = deckAdapter
 //         KotlinNullPointerException
 //        viewModel.getCardsByDeckId(viewModel.openDeckCard.value?.deck?.deckId!!)
