@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".deck_activity.DeckActivity">
+    tools:context=".fragments.DeckActivity">
 
     <FrameLayout
         android:id="@+id/screen_frame"

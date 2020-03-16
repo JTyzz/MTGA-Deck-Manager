@@ -57,7 +57,8 @@ data class Deck(
     @ColumnInfo(name = "deck_id", index = true)
     @PrimaryKey(autoGenerate = true)
     var deckId: Long? = null,
-    var uri: String? = null
+    var uri: String? = null,
+    var cidentity:String? = null
 )
 
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="deck_width">130dp</dimen>
+    <dimen name="deck_height">95dp</dimen>
+</resources>

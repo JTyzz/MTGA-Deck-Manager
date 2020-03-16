@@ -1,11 +1,9 @@
-package com.earthdefensesystem.retrorv.deck_activity
+package com.earthdefensesystem.retrorv.fragments
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.replace
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.earthdefensesystem.retrorv.R
@@ -24,9 +22,9 @@ class DeckActivity : AppCompatActivity(){
                 .commitNow()
         }
         //needed to bind viewmodel to activity to persist between fragments
-        val SearchViewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
+        val viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
 
-        SearchViewModel.openDeckCard?.observe(this, Observer {
+        viewModel.openDeckCard?.observe(this, Observer {
         })
     }
 
@@ -46,5 +44,6 @@ class DeckActivity : AppCompatActivity(){
         } else {
             supportFragmentManager.popBackStack()
         }
+
     }
 }

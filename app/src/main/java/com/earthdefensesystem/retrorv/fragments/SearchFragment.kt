@@ -1,4 +1,4 @@
-package com.earthdefensesystem.retrorv.deck_activity
+package com.earthdefensesystem.retrorv.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -77,7 +77,7 @@ class SearchFragment : Fragment() {
                     sb.append(colorsList[j])
                 }
             }
-            val colorSearch = "c:$sb"
+            val colorSearch = "c:$sb+f:standard"
             Toast.makeText(requireContext(), colorSearch, Toast.LENGTH_SHORT).show()
             viewModel.getCardsSearch(colorSearch)
         }

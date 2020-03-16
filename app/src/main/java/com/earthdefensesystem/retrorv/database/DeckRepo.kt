@@ -14,6 +14,10 @@ class DeckRepo(private val deckDao: DeckDao) {
         return deckDao.getDeckWithCardsById(deckId)
     }
 
+    suspend fun getNewDeckId(name: String): Long{
+        return deckDao.getNewDeckId(name)
+    }
+
     suspend fun insertDeck(deck: Deck) {
         deckDao.insertDeck(deck)
     }
@@ -31,6 +35,8 @@ class DeckRepo(private val deckDao: DeckDao) {
     }
 
     fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
+
+    suspend fun deleteDeckById(id: Long) = deckDao.deleteDeckById(id)
 
     suspend fun deleteAll() {
         deckDao.deleteAll()

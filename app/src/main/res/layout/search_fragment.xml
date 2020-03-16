@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="@android:color/holo_blue_dark"
-    tools:context=".deck_activity.SearchFragment">
+    tools:context=".fragments.SearchFragment">
 
 
 

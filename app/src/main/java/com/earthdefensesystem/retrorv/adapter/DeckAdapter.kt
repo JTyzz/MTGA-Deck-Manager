@@ -13,6 +13,7 @@ import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.model.Deck
+import com.earthdefensesystem.retrorv.utilities.CardBackgroundConverter
 import com.earthdefensesystem.retrorv.utilities.ImageSpanConverter
 import kotlinx.android.synthetic.main.card_front_item.view.*
 import kotlinx.android.synthetic.main.card_list_item.view.*
@@ -50,7 +51,7 @@ class DeckAdapter internal constructor(context: Context, val clickListener: (Car
             itemView.card_name.text = carditem.card.name
             itemView.card_mana.text = ImageSpanConverter.getSpannedImage(itemView.context ,carditem.card.manaCost.toString())
             itemView.card_count.text = carditem.count.toString()
-
+            CardBackgroundConverter.setCardBGColor(itemView.card_list_layout_bg, carditem.card.colors!!)
         }
 
     }

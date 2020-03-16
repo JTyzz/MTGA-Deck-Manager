@@ -24,6 +24,9 @@ interface DeckDao {
     @Query("SELECT * FROM deck_table WHERE deck_id = :deckId")
     fun getDeckWithCardsById(deckId: Long): LiveData<DecksWithCards>
 
+    @Query("SELECT deck_id FROM deck_table WHERE name = :deckName")
+    suspend fun getNewDeckId(deckName: String): Long
+
     @Query("UPDATE deck_table SET uri = :imageUri where deck_id = :deckId")
     suspend fun updateDeckBackground(deckId: Long, imageUri: String)
 
@@ -38,6 +41,10 @@ interface DeckDao {
 
     @Delete
     fun deleteDeck(vararg deck: Deck)
+
+
+    @Query("DELETE FROM deck_table where deck_id = :deckId")
+    suspend fun deleteDeckById(deckId: Long)
 
     @Query("DELETE FROM deck_table")
     suspend fun deleteAll()

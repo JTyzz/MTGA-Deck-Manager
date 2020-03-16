@@ -1,7 +1,9 @@
 package com.earthdefensesystem.retrorv.network
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -13,8 +15,10 @@ object ApiFactory {
     private val loggingInterceptor =
         HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
 
+
     private val okHttp = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(UnencodeInterceptor())
         .build()
 
     fun retrofit(): Retrofit = Retrofit.Builder()
@@ -26,4 +30,14 @@ object ApiFactory {
 
 
     val apiService: APIService = retrofit().create(APIService::class.java)
+}
+class UnencodeInterceptor : Interceptor{
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        val path = request.url.toString()
+        val string = path.replace("%2B", "+")
+        val newRequest = request.newBuilder()
+            .url(string).build()
+        return chain.proceed(newRequest)
+    }
 }

@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
@@ -12,7 +14,7 @@ import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
 
 
-class ListAdapter internal constructor(context: Context, val clickListener: (Deck) -> Unit) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
+class ListAdapter internal constructor(context: Context, val clickListener: (Deck) -> Unit) : RecyclerView.Adapter<ListAdapter.ViewHolder>(), Filterable{
 
     private var decks = emptyList<Deck>()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -48,5 +50,38 @@ class ListAdapter internal constructor(context: Context, val clickListener: (Dec
             }
         }
 
+    }
+
+    override fun getFilter(): Filter {
+        return CustomFilter(decks, this)
+    }
+}
+
+class CustomFilter(val list: List<Deck>, val adapter: ListAdapter) : Filter(){
+    val inputList: List<Deck> = emptyList()
+    override fun performFiltering(constraint: CharSequence?): FilterResults {
+        var results : FilterResults = FilterResults()
+        val inputArray = ArrayList<Deck>(inputList)
+        if(constraint != null && constraint.isNotEmpty()){
+            var conString = constraint.toString().toUpperCase()
+            var filteredList = ArrayList<Deck>()
+            for (i in 0..inputArray.size){
+                if(inputArray[i].name.toUpperCase().contains(conString)) {
+                    filteredList.add(inputArray[i])
+                }
+            }
+            results.count = filteredList.size
+            results.values = filteredList.toList()
+        } else {
+            results.count = inputList.size
+            results.values = inputList
+        }
+
+        return results
+    }
+
+    override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+        adapter.loadDecks(results?.values as List<Deck>)
+        adapter.notifyDataSetChanged()
     }
 }

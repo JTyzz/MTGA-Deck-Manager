@@ -12,5 +12,4 @@ class SearchRepo(private val api: APIService) : BaseRepo() {
         )
         return cardResponse?.cards?.toMutableList()
     }
-
 }
