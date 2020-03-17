@@ -58,7 +58,7 @@ data class Deck(
     @PrimaryKey(autoGenerate = true)
     var deckId: Long? = null,
     var uri: String? = null,
-    var cidentity:String? = null
+    var cIdentity:String? = null
 )
 
 
@@ -89,7 +89,7 @@ data class DeckCardJoin(
 )
 
 //single deck multiple card class
-data class DecksWithCards(
+data class DeckWithCards(
     @Embedded val deck: Deck,
     @Relation(
         parentColumn = "deck_id",

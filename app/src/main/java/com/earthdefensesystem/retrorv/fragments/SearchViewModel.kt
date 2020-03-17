@@ -4,17 +4,19 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
-import com.earthdefensesystem.retrorv.R
-import android.view.View
-import androidx.lifecycle.*
+import android.widget.ImageView
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.*
-import com.earthdefensesystem.retrorv.network.ApiFactory
-import com.earthdefensesystem.retrorv.network.SearchRepo
+import com.earthdefensesystem.retrorv.network.NetworkRepo
 import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Description
@@ -23,24 +25,21 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class SearchViewModel(application: Application) : AndroidViewModel(application) {
-    private val searchRepo: SearchRepo = SearchRepo(ApiFactory.apiService)
+class SearchViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
+    private val networkRepo: NetworkRepo
     private val repo: DeckRepo
     private val context = application.applicationContext
 
     private val parentJob = Job()
-    private val coroutineContext: CoroutineContext
+    override val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.Default
     private val scope = CoroutineScope(coroutineContext)
 
     //search fragment
-    val searchCardsLiveData = MutableLiveData<List<Card>>()
+
 
     //list fragment
     var deckNamesLD: LiveData<List<String>>
@@ -48,42 +47,99 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     var allLDDecks: LiveData<List<Deck>>
 
     //deck fragment
-    var openDeckCard: LiveData<DecksWithCards>? = null
+    var openDeckCard : LiveData<DeckWithCards>? = null
 
 
     init {
         //get reference to deckdao from appdatabase to construct deckrepo
         val deckDao = AppDatabase.getDatabase(application, viewModelScope).deckDao()
         repo = DeckRepo(deckDao)
+        networkRepo = NetworkRepo()
         allLDDecks = repo.allLDDecks
         deckNamesLD = repo.deckNames
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        parentJob.cancel()
+    }
+    /* SEARCH FRAGMENT FUNCTIONS*/
+    var searchCards : MutableLiveData<List<Card>>
+
+    fun getSearchCards(query: String) : LiveData<List<Card>>{
+        if (!::searchCards.isInitialized){
+            searchCards = MutableLiveData()
+            loadSearchCards(query)
+        }
+        return searchCards
+    }
+
+    private lateinit var isLoading: MutableLiveData<Boolean>
+
+    fun getIsLoading(): LiveData<Boolean>{
+        if (!::isLoading.isInitialized){
+            isLoading = MutableLiveData()
+        }
+        return isLoading
+    }
+
+    private fun loadSearchCards(color: String) {
+        launch {
+            try {
+                isLoading.value = true
+                val result = networkRepo.getSearchCards(color)
+                result.let {
+                    val filteredCards = it.cards.toMutableList()
+                    filteredCards.removeIf{ card -> card.imageUris?.small == null }
+                    searchCards.value = filteredCards
+                }
+            } catch (e: Exception){
+                Log.d("error", "error: $e")
+            } finally {
+                isLoading.postValue(false)
+            }
+
+        }
+    }
+
 
     fun getCardsByDeckId(deckId: Long) {
         scope.launch {
             openDeckCard = repo.getDeckById(deckId)
         }
     }
+
     fun deleteDeckById() {
-        scope.launch {
-            if (openDeckCard?.value?.cards!!.isEmpty()) {
+        if (openDeckCard?.value?.cards.isNullOrEmpty()) {
+            scope.launch {
                 repo.deleteDeckById(openDeckCard?.value?.deck?.deckId!!)
             }
         }
     }
 
     //viewmodel specific coroutine scope for threads so insert doesnt block ui
-    fun insertDeck(deck: Deck) = viewModelScope.launch {
+    suspend fun insertDeck(deck: Deck) = viewModelScope.launch {
         repo.insertDeck(deck)
     }
 
-    fun insertCardtoDeck(card: Card, deckId: Long, count: Int) = viewModelScope.launch {
+    suspend fun insertCardtoDeck(card: Card, count: Int) = viewModelScope.launch {
+        val currentDeck = openDeckCard?.value!!.deck
         val cardCount = CardCount(card.cardId, count, card)
-        Log.d("salami", "${cardCount.card.name} inserted")
         repo.insertCardCount(cardCount)
-        val junction = DeckCardJoin(cardCount.id, deckId)
-        Log.d("salami", "${cardCount.card.name} inserted into $deckId")
+        val junction = DeckCardJoin(cardCount.id, currentDeck.deckId!!)
         repo.insertRelation(junction)
+        if (currentDeck.cIdentity.isNullOrEmpty()) {
+            updateDeckColorId(currentDeck.deckId!!, card.colors!!.joinToString(","))
+        } else {
+            val newDeckColors = checkDeckColorId(card, currentDeck)
+            if (currentDeck.cIdentity != newDeckColors) {
+                updateDeckColorId(currentDeck.deckId!!, newDeckColors)
+            }
+        }
+    }
+
+    fun updateDeckColorId(deckId: Long, colorId: String) = viewModelScope.launch {
+        repo.updateDeckColorId(deckId, colorId)
     }
 
     fun updateCardCount(oldCard: CardCount, count: Int) = viewModelScope.launch {
@@ -91,45 +147,43 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         repo.insertCardCount(newCardCount)
     }
 
-    fun updateDeckBackground(deck: Deck, cardCount: CardCount) = viewModelScope.launch {
-        Log.d("salami", "${deck.name} updating background")
-        Glide.with(context)
-            .asBitmap()
-            .load(cardCount.card.imageUris?.artCrop)
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    ImageStoreManager.saveToInternalStorage(
-                        context,
-                        resource,
-                        cardCount.card.cardId
-                    )
-                    Log.d("salami", "Picture added successfully")
-                }
+    fun updateDeckBackground(deck: Deck, cardCount: CardCount, imageView: ImageView) =
+        viewModelScope.launch {
+            Log.d("salami", "${deck.name} updating background")
+            Glide.with(context)
+                .asBitmap()
+                .load(cardCount.card.imageUris?.artCrop)
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        ImageStoreManager.saveToInternalStorage(
+                            context,
+                            resource,
+                            cardCount.card.cardId
+                        )
+                    }
 
-                override fun onLoadCleared(placeholder: Drawable?) {
-                }
-            })
-        repo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
-
-    }
-
-    fun getCardsSearch(color: String) {
-        scope.launch {
-            val searchCards = searchRepo.getSearchCards(color)
-            searchCards?.removeIf { it.imageUris?.small == null }
-            searchCardsLiveData.postValue(searchCards)
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                    }
+                })
+            repo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
         }
-    }
 
 
-    fun newDeck(){
+
+    suspend fun newDeck() = viewModelScope.launch {
         val word = "New Deck"
         val time = System.currentTimeMillis()
         val deck = Deck(word, time)
+        var deckId: Long = 0
         checkExistingName(deck)
         insertDeck(deck)
-        viewModelScope.launch {
-            val deckId = repo.getNewDeckId(deck.name)
+        launch {
+            deckId = repo.getNewDeckId(deck.name)
+        }
+        launch {
             getCardsByDeckId(deckId)
         }
     }
@@ -159,7 +213,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return deck
     }
 
-    fun drawChart(chart: BarChart){
+    fun drawChart(chart: BarChart) {
         val list = openDeckCard?.value?.cards!!
 
         val cmc1 = list.count { it.card.cmc == 1 }.toFloat()
@@ -175,7 +229,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val description = Description()
         description.text = ""
         chart.description = description
-        chart.setMaxVisibleValueCount(50)
         chart.setPinchZoom(false)
         chart.setDrawGridBackground(false)
         chart.legend.isEnabled = false
@@ -206,20 +259,32 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         set.color = getApplication<Application>().resources.getColor(R.color.bar, null)
         set.setDrawValues(false)
         set.setDrawIcons(false)
-        set.barShadowColor = getApplication<Application>().resources.getColor(R.color.extradark, null)
+        set.barShadowColor =
+            getApplication<Application>().resources.getColor(R.color.extradark, null)
         val data = BarData(set)
 
-        data.barWidth = 0.3f
+        data.barWidth = 0.4f
         chart.data = data
-        chart.setFitBars(true)
         chart.setDrawBarShadow(true)
         chart.invalidate()
-
-
-
     }
 
-    fun <T> MutableLiveData<T>.notifyObserver() {
-        this.value = this.value
+
+    fun checkDeckColorId(card: Card, deck: Deck): String {
+        val cardColor = card.colors
+        val deckColor = deck.cIdentity?.split(",")?.toTypedArray()
+
+        for (item in cardColor!!.iterator()) {
+            if (deckColor?.contains(item)!!) {
+                continue
+            } else {
+                deckColor.plus(item)
+                Log.d("colors", "$item has been added")
+            }
+        }
+        val sortedDeckColor = deckColor?.apply {
+            sort()
+        }
+        return sortedDeckColor?.joinToString(",")!!
     }
 }

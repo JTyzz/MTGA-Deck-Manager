@@ -19,7 +19,9 @@ import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckAdapter
 import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.utilities.CardBackgroundConverter
+import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
+import okhttp3.internal.wait
 
 class DeckFragment : Fragment() {
 
@@ -53,14 +55,10 @@ class DeckFragment : Fragment() {
 
         viewModel.openDeckCard?.observe(viewLifecycleOwner, Observer { deckcard ->
             deckcard?.let {
+                Log.d("deckcheck", "${it.deck.name} is loaded")
                 deckAdapter.loadCards(it.cards)
                 decknameTV.text = it.deck.name
-                if (it.deck.uri != null) {
-                    Glide.with(requireContext())
-                        .load(it.deck.uri)
-                        .into(deckIV)
-                }
-                if (it.cards.isNotEmpty()) {
+                if (!it.cards.isNullOrEmpty()) {
                     viewModel.drawChart(deckChart)
                 }
             }
@@ -106,7 +104,8 @@ class DeckFragment : Fragment() {
         artButton.setOnClickListener {
             val deck = viewModel.openDeckCard?.value?.deck
             Log.d("salami", "${deck?.name} art button clicked")
-            viewModel.updateDeckBackground(deck!!, cardItem)
+            val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background)
+            viewModel.updateDeckBackground(deck!!, cardItem, deckIV)
             popupWindow.dismiss()
         }
 

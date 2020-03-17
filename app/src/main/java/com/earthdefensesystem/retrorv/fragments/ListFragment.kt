@@ -1,6 +1,7 @@
 package com.earthdefensesystem.retrorv.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import com.earthdefensesystem.retrorv.adapter.ListAdapter
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.Deck
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.runBlocking
 
 class ListFragment : Fragment() {
 
@@ -55,46 +57,21 @@ class ListFragment : Fragment() {
         svEt.setHintTextColor(resources.getColor(R.color.rose, activity?.theme))
 
         ndBtn.setOnClickListener {
-            viewModel.newDeck()
+            runBlocking {
+                viewModel.newDeck()
+            }
             toDeckFragment()
         }
         return view
     }
     private fun listItemClicked(deckItem: Deck){
-        viewModel.getCardsByDeckId(deckItem.deckId!!)
+        runBlocking {
+            viewModel.getCardsByDeckId(deckItem.deckId!!)
+        }
         toDeckFragment()
     }
 
-    private fun makeAlertDialog(){
-        // inflate popup view
-        val view = LayoutInflater.from(activity).inflate(R.layout.new_deck_popup, null)
-        val et = view.findViewById<EditText>(R.id.nd_name_et)
-        val buttonPopup = view.findViewById<Button>(R.id.nd_popup_close_btn)
-
-        // new popupwindow instance
-        val popupWindow = PopupWindow(
-            view, // Custom view to show in popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            true // Window height
-        )
-        //onclick listener
-        buttonPopup.setOnClickListener {
-            val word = et.text.toString()
-            val time = System.currentTimeMillis()
-            val deck = Deck(word, time)
-            viewModel.checkExistingName(deck)
-            viewModel.insertDeck(deck)
-            popupWindow.dismiss()
-        }
-
-        // dismiss listener
-        popupWindow.setOnDismissListener {
-        }
-        //show popop window
-        popupWindow.showAtLocation(view, Gravity.CENTER,0,0)
-    }
-    fun toDeckFragment() {
+    private fun toDeckFragment() {
         val transaction = requireActivity().supportFragmentManager.beginTransaction()
         transaction.remove(ListFragment())
         requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
