@@ -1,8 +1,6 @@
 package com.earthdefensesystem.retrorv.fragments
 
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.ListAdapter
-import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.Deck
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
 
 class ListFragment : Fragment() {
@@ -27,14 +23,14 @@ class ListFragment : Fragment() {
     companion object {
         fun newInstance() = ListFragment()
     }
-    private lateinit var viewModel: SearchViewModel
+    private lateinit var viewModel: SharedViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         activity?.let {
-            viewModel = ViewModelProvider(it).get(SearchViewModel::class.java)
+            viewModel = ViewModelProvider(it).get(SharedViewModel::class.java)
         }
         val view = inflater.inflate(R.layout.list_fragment, container, false)
         val ndBtn = view.findViewById<Button>(R.id.new_deck_button)
@@ -66,7 +62,7 @@ class ListFragment : Fragment() {
     }
     private fun listItemClicked(deckItem: Deck){
         runBlocking {
-            viewModel.getCardsByDeckId(deckItem.deckId!!)
+            viewModel.setDeckId(deckItem.deckId!!)
         }
         toDeckFragment()
     }

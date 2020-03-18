@@ -15,7 +15,6 @@ import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.SearchAdapter
 import com.earthdefensesystem.retrorv.model.Card
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.search_fragment.*
 import kotlinx.coroutines.runBlocking
 import java.lang.StringBuilder
 
@@ -26,14 +25,14 @@ class SearchFragment : Fragment() {
             SearchFragment()
     }
 
-    private lateinit var viewModel: SearchViewModel
+    private lateinit var viewModel: SharedViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         activity?.let {
-            viewModel = ViewModelProvider(it).get((SearchViewModel::class.java))
+            viewModel = ViewModelProvider(it).get((SharedViewModel::class.java))
         }
         val view: View = inflater.inflate(R.layout.search_fragment, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.search_rv)
@@ -47,11 +46,14 @@ class SearchFragment : Fragment() {
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = searchAdapter
 
+        viewModel.cardList.observe(viewLifecycleOwner, Observer { cards ->
+            cards?.let { searchAdapter.loadCards(it)}
+        })
+
         fab.setOnClickListener {
             showSearchDialog()
         }
 
-        subscribeUi(viewModel, searchAdapter, "c:w")
         return view
     }
 
@@ -83,22 +85,13 @@ class SearchFragment : Fragment() {
             }
             val colorSearch = "c:$sb+f:standard"
             Toast.makeText(requireContext(), colorSearch, Toast.LENGTH_SHORT).show()
-            viewModel.getSearchCards(colorSearch)
+            viewModel.loadSearchCards(colorSearch)
         }
         builder.setNeutralButton("Cancel") { dialogInterface, _ ->
             dialogInterface.cancel()
         }
         val dialog = builder.create()
         dialog.show()
-
-    }
-
-    private fun subscribeUi(viewModel: SearchViewModel, searchAdapter: SearchAdapter, query: String){
-        viewModel.getSearchCards(query).observe(viewLifecycleOwner, Observer { cards ->
-            cards?.let {
-                (searchAdapter.loadCards(it))
-            }
-        })
 
     }
 }

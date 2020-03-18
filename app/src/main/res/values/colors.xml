@@ -12,11 +12,15 @@
     <color name="dark">#2C2B2A</color>
     <color name="extradark">#161615</color>
     <color name="blue">#348AA7</color>
-    <color name="green">#449A73</color>
-    <color name="white">#FFFAE4</color>
+    <color name="green">#1C9A61</color>
     <color name="red">#C74E4C</color>
-    <color name="legendary">#C7B74C</color>
-    <color name="black">#50514F</color>
+    <color name="black">#41423A</color>
+    <color name="faintblue">#5B94A7</color>
+    <color name="faintgreen">#579A7C</color>
+    <color name="faintred">#C77574</color>
+    <color name="faintblack">#525349</color>
+    <color name="white">#FFF8D9</color>
+    <color name="legendary">#CBB93F</color>
     <color name="bar">#FF5722</color>
 
 </resources>

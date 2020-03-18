@@ -8,20 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckAdapter
 import com.earthdefensesystem.retrorv.model.CardCount
-import com.earthdefensesystem.retrorv.utilities.CardBackgroundConverter
-import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
-import okhttp3.internal.wait
 
 class DeckFragment : Fragment() {
 
@@ -32,15 +27,16 @@ class DeckFragment : Fragment() {
     }
 
 
-    private lateinit var viewModel: SearchViewModel
+    private lateinit var viewModel: SharedViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         activity?.let {
-            viewModel = ViewModelProvider(it).get((SearchViewModel::class.java))
+            viewModel = ViewModelProvider(it).get((SharedViewModel::class.java))
         }
+        Log.d("debug", "New deck fragment created!")
         val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.deck_rv)
         val decknameTV = view.findViewById<TextView>(R.id.deck_name_tv)
@@ -53,20 +49,43 @@ class DeckFragment : Fragment() {
             LinearLayoutManager(requireContext())
         recyclerView.adapter = deckAdapter
 
-        viewModel.openDeckCard?.observe(viewLifecycleOwner, Observer { deckcard ->
-            deckcard?.let {
-                Log.d("deckcheck", "${it.deck.name} is loaded")
+//        viewModel.openDeckCard?.observe(viewLifecycleOwner, Observer { deckcard ->
+//            deckcard?.let {
+//                Log.d("deckcheck", "${it.deck.name} is loaded")
+//                deckAdapter.loadCards(it.cards)
+//                decknameTV.text = it.deck.name
+
+//            }
+//        })
+
+
+        viewModel.mCurrentDeck?.observe(viewLifecycleOwner, Observer { cards ->
+            cards.let {
                 deckAdapter.loadCards(it.cards)
-                decknameTV.text = it.deck.name
                 if (!it.cards.isNullOrEmpty()) {
-                    viewModel.drawChart(deckChart)
+                    viewModel.drawChart(deckChart, it.cards)
                 }
             }
         })
 
-        val callback = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            viewModel.deleteDeckById()
-        }
+
+        val callback = requireActivity()
+            .onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner) {
+                val transaction = requireActivity().supportFragmentManager.beginTransaction()
+                transaction.remove(DeckFragment())
+                transaction.remove(SearchFragment())
+                requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.GONE
+                requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.GONE
+                requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility = View.VISIBLE
+                transaction.replace(
+                    R.id.screen_frame,
+                    ListFragment()
+                )
+                transaction.commit()
+            }
+
+
         callback.isEnabled
 
         return view
@@ -102,7 +121,7 @@ class DeckFragment : Fragment() {
         }
 
         artButton.setOnClickListener {
-            val deck = viewModel.openDeckCard?.value?.deck
+            val deck = viewModel.mCurrentDeck?.value?.deck
             Log.d("salami", "${deck?.name} art button clicked")
             val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background)
             viewModel.updateDeckBackground(deck!!, cardItem, deckIV)
@@ -115,5 +134,6 @@ class DeckFragment : Fragment() {
         }
         //show popop window
         popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
+
     }
 }

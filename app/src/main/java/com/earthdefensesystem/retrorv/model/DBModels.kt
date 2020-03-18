@@ -96,7 +96,7 @@ data class DeckWithCards(
         entityColumn = "cc_id",
         associateBy = Junction(DeckCardJoin::class)
     )
-    val cards: List<CardCount>
+    val cards: List<CardCount> = emptyList()
 )
 
 class StringListConverter {

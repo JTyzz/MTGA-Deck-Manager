@@ -43,9 +43,9 @@ class ListAdapter internal constructor(context: Context, val clickListener: (Dec
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(deck: Deck, clickListener: (Deck) -> Unit) {
             itemView.deck_tv.text = deck.name
-            if (deck.cIdentity != null){
-            itemView.deck_color_id.text = ImageSpanConverter.getSpannedMana(itemView.context ,deck.cIdentity!!)
-                }
+//            if (deck.cIdentity != null){
+//            itemView.deck_color_id.text = ImageSpanConverter.getSpannedMana(itemView.context ,deck.cIdentity!!)
+//                }
             itemView.setOnClickListener { clickListener(deck) }
             if (deck.uri != null) {
                 val bitmap = ImageStoreManager

@@ -50,7 +50,7 @@ class DeckAdapter internal constructor(context: Context, val clickListener: (Car
 
             itemView.card_name.text = carditem.card.name
             itemView.card_mana.text = ImageSpanConverter.getSpannedImage(itemView.context ,carditem.card.manaCost.toString())
-            itemView.card_count.text = carditem.count.toString()
+            itemView.card_count.text = "${carditem.count}x"
             CardBackgroundConverter.setCardBGColor(itemView.card_list_layout_bg, carditem.card.colors!!)
         }
 

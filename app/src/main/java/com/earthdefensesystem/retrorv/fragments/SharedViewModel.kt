@@ -16,7 +16,8 @@ import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.*
-import com.earthdefensesystem.retrorv.network.NetworkRepo
+import com.earthdefensesystem.retrorv.network.ApiFactory
+import com.earthdefensesystem.retrorv.network.SearchRepo
 import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Description
@@ -28,8 +29,8 @@ import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class SearchViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
-    private val networkRepo: NetworkRepo
+class SharedViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
+    private val searchRepo: SearchRepo = SearchRepo(ApiFactory.apiService)
     private val repo: DeckRepo
     private val context = application.applicationContext
 
@@ -39,7 +40,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
     private val scope = CoroutineScope(coroutineContext)
 
     //search fragment
-
+    val cardList = MutableLiveData<List<Card>>()
 
     //list fragment
     var deckNamesLD: LiveData<List<String>>
@@ -47,14 +48,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
     var allLDDecks: LiveData<List<Deck>>
 
     //deck fragment
-    var openDeckCard : LiveData<DeckWithCards>? = null
+    var mCurrentDeck: LiveData<DeckWithCards>? = null
+    var mDeckId = MutableLiveData<Long>()
 
 
     init {
         //get reference to deckdao from appdatabase to construct deckrepo
         val deckDao = AppDatabase.getDatabase(application, viewModelScope).deckDao()
         repo = DeckRepo(deckDao)
-        networkRepo = NetworkRepo()
         allLDDecks = repo.allLDDecks
         deckNamesLD = repo.deckNames
     }
@@ -64,55 +65,25 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
         parentJob.cancel()
     }
     /* SEARCH FRAGMENT FUNCTIONS*/
-    var searchCards : MutableLiveData<List<Card>>
 
-    fun getSearchCards(query: String) : LiveData<List<Card>>{
-        if (!::searchCards.isInitialized){
-            searchCards = MutableLiveData()
-            loadSearchCards(query)
-        }
-        return searchCards
-    }
+    var isLoading: Boolean = false
 
-    private lateinit var isLoading: MutableLiveData<Boolean>
-
-    fun getIsLoading(): LiveData<Boolean>{
-        if (!::isLoading.isInitialized){
-            isLoading = MutableLiveData()
-        }
-        return isLoading
-    }
-
-    private fun loadSearchCards(color: String) {
-        launch {
-            try {
-                isLoading.value = true
-                val result = networkRepo.getSearchCards(color)
-                result.let {
-                    val filteredCards = it.cards.toMutableList()
-                    filteredCards.removeIf{ card -> card.imageUris?.small == null }
-                    searchCards.value = filteredCards
-                }
-            } catch (e: Exception){
-                Log.d("error", "error: $e")
-            } finally {
-                isLoading.postValue(false)
-            }
-
+    fun loadSearchCards(query: String) {
+        scope.launch {
+            val searchCards = searchRepo.getSearchCards(query)
+            searchCards?.removeIf { it.imageUris?.small == null }
+            cardList.postValue(searchCards)
         }
     }
-
 
     fun getCardsByDeckId(deckId: Long) {
-        scope.launch {
-            openDeckCard = repo.getDeckById(deckId)
-        }
+        scope.launch { mCurrentDeck = repo.getDeckById(deckId) }
     }
 
     fun deleteDeckById() {
-        if (openDeckCard?.value?.cards.isNullOrEmpty()) {
+        if (mCurrentDeck?.value?.cards.isNullOrEmpty()) {
             scope.launch {
-                repo.deleteDeckById(openDeckCard?.value?.deck?.deckId!!)
+                repo.deleteDeckById(mDeckId.value!!)
             }
         }
     }
@@ -123,7 +94,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
     }
 
     suspend fun insertCardtoDeck(card: Card, count: Int) = viewModelScope.launch {
-        val currentDeck = openDeckCard?.value!!.deck
+        val currentDeck = mCurrentDeck?.value!!.deck
         val cardCount = CardCount(card.cardId, count, card)
         repo.insertCardCount(cardCount)
         val junction = DeckCardJoin(cardCount.id, currentDeck.deckId!!)
@@ -172,7 +143,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
         }
 
 
-
     suspend fun newDeck() = viewModelScope.launch {
         val word = "New Deck"
         val time = System.currentTimeMillis()
@@ -180,12 +150,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
         var deckId: Long = 0
         checkExistingName(deck)
         insertDeck(deck)
-        launch {
-            deckId = repo.getNewDeckId(deck.name)
-        }
-        launch {
-            getCardsByDeckId(deckId)
-        }
+        async { deckId = repo.getNewDeckId(deck.name)}.await()
+        async { setDeckId(deckId)}.await()
     }
 
 
@@ -213,15 +179,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
         return deck
     }
 
-    fun drawChart(chart: BarChart) {
-        val list = openDeckCard?.value?.cards!!
-
-        val cmc1 = list.count { it.card.cmc == 1 }.toFloat()
-        val cmc2 = list.count { it.card.cmc == 2 }.toFloat()
-        val cmc3 = list.count { it.card.cmc == 3 }.toFloat()
-        val cmc4 = list.count { it.card.cmc == 4 }.toFloat()
-        val cmc5 = list.count { it.card.cmc == 5 }.toFloat()
-        val cmc6 = list.count { it.card.cmc!! >= 6 }.toFloat()
+    fun drawChart(chart: BarChart, cardList: List<CardCount>) {
+        val cmc1 = cardList.count { it.card.cmc == 1 }.toFloat()
+        val cmc2 = cardList.count { it.card.cmc == 2 }.toFloat()
+        val cmc3 = cardList.count { it.card.cmc == 3 }.toFloat()
+        val cmc4 = cardList.count { it.card.cmc == 4 }.toFloat()
+        val cmc5 = cardList.count { it.card.cmc == 5 }.toFloat()
+        val cmc6 = cardList.count { it.card.cmc!! >= 6 }.toFloat()
         val cmcList = listOf(cmc1, cmc2, cmc3, cmc4, cmc5, cmc6)
 
         chart.setDrawBarShadow(false)
@@ -267,6 +231,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application),
         chart.data = data
         chart.setDrawBarShadow(true)
         chart.invalidate()
+    }
+
+    fun setDeckId(deckId: Long) {
+        this.mDeckId.value = deckId
+    }
+
+    fun getDeckId(): Long {
+        return mDeckId.value!!
     }
 
 

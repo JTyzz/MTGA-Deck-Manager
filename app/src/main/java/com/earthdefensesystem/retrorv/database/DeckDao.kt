@@ -18,17 +18,20 @@ interface DeckDao {
 
     @Transaction
     @Query("SELECT * FROM deck_table")
-    fun getDecksWithCards(): List<DecksWithCards>
+    fun getDecksWithCards(): List<DeckWithCards>
 
     @Transaction
     @Query("SELECT * FROM deck_table WHERE deck_id = :deckId")
-    fun getDeckWithCardsById(deckId: Long): LiveData<DecksWithCards>
+    fun getDeckWithCardsById(deckId: Long): LiveData<DeckWithCards>
 
     @Query("SELECT deck_id FROM deck_table WHERE name = :deckName")
     suspend fun getNewDeckId(deckName: String): Long
 
-    @Query("UPDATE deck_table SET uri = :imageUri where deck_id = :deckId")
+    @Query("UPDATE deck_table SET uri = :imageUri WHERE deck_id = :deckId")
     suspend fun updateDeckBackground(deckId: Long, imageUri: String)
+
+    @Query("UPDATE deck_table SET cIdentity = :colors WHERE deck_id = :deckId")
+    suspend fun updateDeckColorIdentity(deckId: Long, colors: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDeck(deck: Deck)

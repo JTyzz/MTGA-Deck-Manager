@@ -10,7 +10,7 @@ class DeckRepo(private val deckDao: DeckDao) {
     val deckNames: LiveData<List<String>> = deckDao.getNames()
 
     //gets deck object with a list<Cards> by decks id
-    fun getDeckById(deckId: Long): LiveData<DecksWithCards> {
+    fun getDeckById(deckId: Long): LiveData<DeckWithCards> {
         return deckDao.getDeckWithCardsById(deckId)
     }
 
@@ -32,6 +32,10 @@ class DeckRepo(private val deckDao: DeckDao) {
 
     suspend fun updateDeckBackground(deckId: Long, imageUri: String){
         deckDao.updateDeckBackground(deckId, imageUri)
+    }
+
+    suspend fun updateDeckColorId(deckId: Long, colorId: String){
+        deckDao.updateDeckColorIdentity(deckId, colorId)
     }
 
     fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
