@@ -66,8 +66,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     }
     /* SEARCH FRAGMENT FUNCTIONS*/
 
-    var isLoading: Boolean = false
-
     fun loadSearchCards(query: String) {
         scope.launch {
             val searchCards = searchRepo.getSearchCards(query)
@@ -180,12 +178,13 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     }
 
     fun drawChart(chart: BarChart, cardList: List<CardCount>) {
-        val cmc1 = cardList.count { it.card.cmc == 1 }.toFloat()
-        val cmc2 = cardList.count { it.card.cmc == 2 }.toFloat()
-        val cmc3 = cardList.count { it.card.cmc == 3 }.toFloat()
-        val cmc4 = cardList.count { it.card.cmc == 4 }.toFloat()
-        val cmc5 = cardList.count { it.card.cmc == 5 }.toFloat()
-        val cmc6 = cardList.count { it.card.cmc!! >= 6 }.toFloat()
+        getDeckId()
+        val cmc1 = maxOf(cardList.count { it.card.cmc == 1 }.toFloat(), 0f)
+        val cmc2 = maxOf(cardList.count { it.card.cmc == 2 }.toFloat(), 0f)
+        val cmc3 = maxOf(cardList.count { it.card.cmc == 3 }.toFloat(), 0f)
+        val cmc4 = maxOf(cardList.count { it.card.cmc == 4 }.toFloat(), 0f)
+        val cmc5 = maxOf(cardList.count { it.card.cmc == 5 }.toFloat(), 0f)
+        val cmc6 = maxOf(cardList.count { it.card.cmc!! >= 6 }.toFloat(), 0f)
         val cmcList = listOf(cmc1, cmc2, cmc3, cmc4, cmc5, cmc6)
 
         chart.setDrawBarShadow(false)
@@ -208,16 +207,17 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         leftAxis.setDrawTopYLabelEntry(false)
         leftAxis.axisMinimum = 0f
         leftAxis.isEnabled = false
-        leftAxis.axisMaximum = cmcList.max()!!
+        leftAxis.axisMaximum = maxOf(cmcList.max()!!, 1f)
         chart.axisRight.isEnabled = false
 
-        val entries: ArrayList<BarEntry> = ArrayList()
-        entries.add(BarEntry(0f, cmc1))
-        entries.add(BarEntry(1f, cmc2))
-        entries.add(BarEntry(2f, cmc3))
-        entries.add(BarEntry(3f, cmc4))
-        entries.add(BarEntry(4f, cmc5))
-        entries.add(BarEntry(5f, cmc6))
+        val entries = ArrayList<BarEntry>()
+            entries.add(BarEntry(0f, cmc1))
+            entries.add(BarEntry(1f, cmc2))
+            entries.add(BarEntry(2f, cmc3))
+            entries.add(BarEntry(3f, cmc4))
+            entries.add(BarEntry(4f, cmc5))
+            entries.add(BarEntry(5f, cmc6))
+
 
         val set = BarDataSet(entries, "CMCDataSet")
         set.color = getApplication<Application>().resources.getColor(R.color.bar, null)

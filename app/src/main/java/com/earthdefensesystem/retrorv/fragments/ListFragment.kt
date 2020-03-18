@@ -55,6 +55,7 @@ class ListFragment : Fragment() {
         ndBtn.setOnClickListener {
             runBlocking {
                 viewModel.newDeck()
+                viewModel.getDeckId()
             }
             toDeckFragment()
         }

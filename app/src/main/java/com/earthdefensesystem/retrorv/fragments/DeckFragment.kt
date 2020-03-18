@@ -62,9 +62,7 @@ class DeckFragment : Fragment() {
         viewModel.mCurrentDeck?.observe(viewLifecycleOwner, Observer { cards ->
             cards.let {
                 deckAdapter.loadCards(it.cards)
-                if (!it.cards.isNullOrEmpty()) {
-                    viewModel.drawChart(deckChart, it.cards)
-                }
+                viewModel.drawChart(deckChart, it.cards)
             }
         })
 
@@ -76,8 +74,10 @@ class DeckFragment : Fragment() {
                 transaction.remove(DeckFragment())
                 transaction.remove(SearchFragment())
                 requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.GONE
-                requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.GONE
-                requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility = View.VISIBLE
+                requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility =
+                    View.GONE
+                requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility =
+                    View.VISIBLE
                 transaction.replace(
                     R.id.screen_frame,
                     ListFragment()
@@ -90,6 +90,8 @@ class DeckFragment : Fragment() {
 
         return view
     }
+
+
 
     private fun onItemClick(deck: CardCount) {
         Log.d("salami", "hello ${deck.card.name}")

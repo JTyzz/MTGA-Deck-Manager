@@ -7,6 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Card
 import kotlinx.android.synthetic.main.card_front_item.view.*
@@ -41,8 +45,16 @@ class SearchAdapter internal constructor(context: Context, val clickListener: (C
         fun bind(card: Card, clickListener: (Card) -> Unit) {
             itemView.setOnClickListener { clickListener(card) }
             Glide.with(itemView.context)
-                .load(card.imageUris?.small)
+                .setDefaultRequestOptions(RequestOptions().also {
+                    it.error(R.drawable.ic_x)
+                    it.diskCacheStrategy(DiskCacheStrategy.ALL)
+                    it.format(DecodeFormat.PREFER_RGB_565)
+                })
+                .load(card.imageUris?.normal)
+                .thumbnail(0.5f)
                 .into(itemView.card_iv)
+
+
         }
 
     }
