@@ -148,9 +148,13 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         var deckId: Long = 0
         checkExistingName(deck)
         insertDeck(deck)
-        async { deckId = repo.getNewDeckId(deck.name)}.await()
-        async { setDeckId(deckId)}.await()
+        withContext(Dispatchers.IO) {
+            deckId = repo.getNewDeckId(deck.name)
+        }
+        setDeckId(deckId)
+
     }
+
 
 
     //checks name of deck and increments name by 1 if it exists
@@ -233,6 +237,10 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         chart.invalidate()
     }
 
+    fun refreshListUI(){
+        allLDDecks = repo.allLDDecks
+    }
+
     fun setDeckId(deckId: Long) {
         this.mDeckId.value = deckId
     }
@@ -244,19 +252,23 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
 
     fun checkDeckColorId(card: Card, deck: Deck): String {
         val cardColor = card.colors
-        val deckColor = deck.cIdentity?.split(",")?.toTypedArray()
+        val deckColor= deck.cIdentity?.split(",")?.toMutableList()
 
         for (item in cardColor!!.iterator()) {
             if (deckColor?.contains(item)!!) {
                 continue
             } else {
-                deckColor.plus(item)
-                Log.d("colors", "$item has been added")
+                Log.d("debug", "before ${deckColor.joinToString(",")}")
+                deckColor.add(item)
+                Log.d("debug", "after ${deckColor.joinToString(",")}")
+                Log.d("debug", "$item has been added")
+
             }
         }
         val sortedDeckColor = deckColor?.apply {
             sort()
         }
+        Log.d("debug", "sorted ${sortedDeckColor?.joinToString(",")!!}")
         return sortedDeckColor?.joinToString(",")!!
     }
 }

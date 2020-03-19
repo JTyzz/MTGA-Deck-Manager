@@ -50,7 +50,6 @@ class ImageSpanConverter {
             manaMap["{X}"] = R.drawable.ic_x
             manaMap["{Y}"] = R.drawable.ic_y
 
-            var index = 0
             val builder = SpannableStringBuilder()
             builder.append(s)
 
@@ -68,5 +67,35 @@ class ImageSpanConverter {
             return builder
 
         }
+
+        fun getSpannedManaImage(context: Context, s: String): Spannable {
+            val manaSymbolMap = HashMap<String, Int>()
+            manaSymbolMap["G"] = R.drawable.ic_g
+            manaSymbolMap["W"] = R.drawable.ic_w
+            manaSymbolMap["U"] = R.drawable.ic_u
+            manaSymbolMap["B"] = R.drawable.ic_b
+            manaSymbolMap["R"] = R.drawable.ic_r
+
+            val builder = SpannableStringBuilder()
+            builder.append(s)
+
+            for (i in 0..builder.length) {
+                for (j in i..builder.length) {
+                    for (entry in manaSymbolMap.entries) {
+                        if (builder.subSequence(i, j)
+                                .toString() == entry.key
+                        ) {
+                            builder.setSpan(
+                                ImageSpan(context, entry.value, DynamicDrawableSpan.ALIGN_BOTTOM),
+                                i, j, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                            )
+                        }
+                    }
+                }
+            }
+            return builder
+        }
+
+
     }
 }

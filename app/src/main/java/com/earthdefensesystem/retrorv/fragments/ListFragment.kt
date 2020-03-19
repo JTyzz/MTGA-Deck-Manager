@@ -1,21 +1,25 @@
 package com.earthdefensesystem.retrorv.fragments
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.FrameLayout
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.ListAdapter
 import com.earthdefensesystem.retrorv.model.Deck
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class ListFragment : Fragment() {
 
@@ -42,12 +46,12 @@ class ListFragment : Fragment() {
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3) as RecyclerView.LayoutManager?
 
         viewModel.allLDDecks.observe(viewLifecycleOwner, Observer { decks ->
-            decks?.let { listAdapter.loadDecks(it)
-            listAdapter.notifyDataSetChanged()}
+            decks?.let { listAdapter.loadDecks(it)}
         })
         viewModel.deckNamesLD.observe(viewLifecycleOwner, Observer {
             viewModel.deckNames = it.toMutableList()
         })
+
 
         svEt.setTextColor(resources.getColor(R.color.rose, activity?.theme))
         svEt.setHintTextColor(resources.getColor(R.color.rose, activity?.theme))
@@ -55,11 +59,20 @@ class ListFragment : Fragment() {
         ndBtn.setOnClickListener {
             runBlocking {
                 viewModel.newDeck()
-                viewModel.getDeckId()
             }
-            toDeckFragment()
+            viewModel.mDeckId.observe(viewLifecycleOwner, Observer {
+                toDeckFragment()
+            })
         }
         return view
+    }
+
+    override fun onAttach(context: Context) {
+        activity?.let {
+            viewModel = ViewModelProvider(it).get(SharedViewModel::class.java)
+        }
+        super.onAttach(context)
+        viewModel.refreshListUI()
     }
     private fun listItemClicked(deckItem: Deck){
         runBlocking {
