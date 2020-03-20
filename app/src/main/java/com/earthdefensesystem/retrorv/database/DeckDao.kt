@@ -24,6 +24,12 @@ interface DeckDao {
     @Query("SELECT * FROM deck_table WHERE deck_id = :deckId")
     fun getDeckWithCardsById(deckId: Long): LiveData<DeckWithCards>
 
+    @Transaction
+    suspend fun setNewDeck(deck: Deck): Long {
+        insertDeck(deck)
+        return getNewDeckId(deck.name)
+    }
+
     @Query("SELECT deck_id FROM deck_table WHERE name = :deckName")
     suspend fun getNewDeckId(deckName: String): Long
 

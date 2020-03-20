@@ -2,13 +2,9 @@ package com.earthdefensesystem.retrorv
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import android.widget.FrameLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.earthdefensesystem.retrorv.fragments.DeckFragment
 import com.earthdefensesystem.retrorv.fragments.ListFragment
-import com.earthdefensesystem.retrorv.fragments.SearchFragment
 import com.earthdefensesystem.retrorv.fragments.SharedViewModel
 
 class DeckActivity : AppCompatActivity(){
@@ -19,17 +15,13 @@ class DeckActivity : AppCompatActivity(){
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .add(
-                    R.id.screen_frame,
+                    R.id.nav_host_fragment_container,
                     ListFragment.newInstance()
                 )
                 .commitNow()
         }
-        //needed to bind viewmodel to activity to persist between fragments
+        //bind viewmodel to activity to persist between fragments
         val viewModel = ViewModelProvider(this).get(SharedViewModel::class.java)
-
-        viewModel.mDeckId.observe(this, Observer {
-            viewModel.getCardsByDeckId(it)
-        })
     }
 
     //overrides back button press to reset visibilities and fragments

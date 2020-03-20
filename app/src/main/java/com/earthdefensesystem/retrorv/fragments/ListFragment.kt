@@ -2,6 +2,7 @@ package com.earthdefensesystem.retrorv.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,9 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDestination
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
@@ -20,6 +24,7 @@ import com.earthdefensesystem.retrorv.model.Deck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 class ListFragment : Fragment() {
 
@@ -27,6 +32,7 @@ class ListFragment : Fragment() {
     companion object {
         fun newInstance() = ListFragment()
     }
+
     private lateinit var viewModel: SharedViewModel
 
     override fun onCreateView(
@@ -41,12 +47,14 @@ class ListFragment : Fragment() {
         val sv = view.findViewById<SearchView>(R.id.list_searchview)
         val svEt = sv.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         val recyclerView = view.findViewById<RecyclerView>(R.id.list_rv)
-        val listAdapter = ListAdapter(requireContext()) { deckItem: Deck -> listItemClicked(deckItem) }
+        val listAdapter =
+            ListAdapter(requireContext()) { deckItem: Deck -> listItemClicked(deckItem) }
         recyclerView.adapter = listAdapter
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3) as RecyclerView.LayoutManager?
+        recyclerView.layoutManager =
+            GridLayoutManager(requireContext(), 3) as RecyclerView.LayoutManager?
 
         viewModel.allLDDecks.observe(viewLifecycleOwner, Observer { decks ->
-            decks?.let { listAdapter.loadDecks(it)}
+            decks?.let { listAdapter.loadDecks(it) }
         })
         viewModel.deckNamesLD.observe(viewLifecycleOwner, Observer {
             viewModel.deckNames = it.toMutableList()
@@ -67,14 +75,7 @@ class ListFragment : Fragment() {
         return view
     }
 
-    override fun onAttach(context: Context) {
-        activity?.let {
-            viewModel = ViewModelProvider(it).get(SharedViewModel::class.java)
-        }
-        super.onAttach(context)
-        viewModel.refreshListUI()
-    }
-    private fun listItemClicked(deckItem: Deck){
+    private fun listItemClicked(deckItem: Deck) {
         runBlocking {
             viewModel.setDeckId(deckItem.deckId!!)
         }
@@ -82,15 +83,12 @@ class ListFragment : Fragment() {
     }
 
     private fun toDeckFragment() {
-        val transaction = requireActivity().supportFragmentManager.beginTransaction()
-        transaction.remove(ListFragment())
-//        requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
-//        requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.VISIBLE
-//        requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility = View.GONE
-        transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right).replace(R.id.top_frame, DeckFragment())
-        transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right).replace(R.id.bottom_frame, SearchFragment())
-        transaction.addToBackStack(null)
-        transaction.commit()
+        val action = ListFragmentDirections.actionListFragmentToDeckFragment()
+        try {
+            view?.findNavController()?.navigate(action)
+        } catch (e: Exception) {
+            Log.d("debug", "Error: $e")
+        }
     }
 
 }

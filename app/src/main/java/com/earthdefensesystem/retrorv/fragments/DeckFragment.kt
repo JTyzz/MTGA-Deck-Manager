@@ -62,11 +62,12 @@ class DeckFragment : Fragment() {
         val editDeckBtn = view.findViewById<Button>(R.id.edit_deck_btn)
         val deckChart = view.findViewById<BarChart>(R.id.mana_chart)
 
-
-
         viewModel.mCurrentDeck?.observe(viewLifecycleOwner, Observer { cards ->
             cards.let {
-                deckAdapter.loadCards(it.cards)
+                val cardList = it.cards.sortedWith(compareBy {
+                        cardCount -> cardCount.card.cmc
+                })
+                deckAdapter.loadCards(cardList)
                 viewModel.drawChart(deckChart, it.cards)
             }
         })
@@ -75,13 +76,17 @@ class DeckFragment : Fragment() {
             cards?.let { searchAdapter.loadCards(it)}
         })
 
-
-        val callback = requireActivity()
-            .onBackPressedDispatcher
-            .addCallback(viewLifecycleOwner) {
-                requireActivity().supportFragmentManager.popBackStackImmediate()
-            }
-        callback.isEnabled
+        editDeckBtn.setOnClickListener {
+            showSearchDialog()
+        }
+//
+//
+//        val callback = requireActivity()
+//            .onBackPressedDispatcher
+//            .addCallback(viewLifecycleOwner) {
+//                requireActivity().supportFragmentManager.popBackStackImmediate()
+//            }
+//        callback.isEnabled
 
         return view
     }

@@ -30,8 +30,8 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class SharedViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
-    private val searchRepo: SearchRepo = SearchRepo(ApiFactory.apiService)
-    private val repo: DeckRepo
+    private val networkRepo: SearchRepo = SearchRepo(ApiFactory.apiService)
+    private val dbRepo: DeckRepo
     private val context = application.applicationContext
 
     private val parentJob = Job()
@@ -39,50 +39,80 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         get() = parentJob + Dispatchers.Default
     private val scope = CoroutineScope(coroutineContext)
 
-    //search fragment
+    //deck fragment
     val cardList = MutableLiveData<List<Card>>()
-    val searchBase : MutableLiveData<Base> by lazy {
-        MutableLiveData<Base>() }
+    val searchBase: MutableLiveData<Base> by lazy {
+        MutableLiveData<Base>()
+    }
+    var mCurrentDeck: LiveData<DeckWithCards>? = null
+    var mDeckId = MutableLiveData<Long>()
 
     //list fragment
     var deckNamesLD: LiveData<List<String>>
     var deckNames: MutableList<String> = mutableListOf()
     var allLDDecks: LiveData<List<Deck>>
 
-    //deck fragment
-    var mCurrentDeck: LiveData<DeckWithCards>? = null
-    var mDeckId = MutableLiveData<Long>()
 
 
     init {
         //get reference to deckdao from appdatabase to construct deckrepo
         val deckDao = AppDatabase.getDatabase(application, viewModelScope).deckDao()
-        repo = DeckRepo(deckDao)
-        allLDDecks = repo.allLDDecks
-        deckNamesLD = repo.deckNames
+        dbRepo = DeckRepo(deckDao)
+        allLDDecks = dbRepo.allLDDecks
+        deckNamesLD = dbRepo.deckNames
     }
 
     override fun onCleared() {
         super.onCleared()
         parentJob.cancel()
     }
-    /* SEARCH FRAGMENT FUNCTIONS*/
+    /* LIST FRAGMENT FUNCTIONS*/
 
+    //Adds deck named New Deck and sets viewmodel DeckId
+    suspend fun newDeck() = viewModelScope.launch {
+        val word = "New Deck"
+        val time = System.currentTimeMillis()
+        val deck = Deck(word, time)
+        checkExistingName(deck)
+        setDeckId(dbRepo.setNewDeck(deck))
+    }
+
+    //checks name of deck and increments name by 1 if it exists
+    private fun checkExistingName(deck: Deck): Deck {
+        var deckName = deck.name
+        var count = 0
+        fun checkNames() {
+            if (deckNames.contains(deckName)) {
+                count++
+                if (deckNames.contains(deckName.plus(count))) {
+                    checkNames()
+                }
+            }
+        }
+        checkNames()
+        if (count != 0) {
+            deckName = deckName.plus(count)
+            deck.name = deckName
+        }
+        return deck
+    }
+
+    /* DECK FRAGMENT FUNCTIONS */
     fun loadSearchCards(query: String) {
         scope.launch {
-            val response = searchRepo.getSearchCards(query)
+            val response = networkRepo.getSearchCards(query)
             searchBase.postValue(response)
             val searchCards = response?.cards?.toMutableList()
             searchCards?.removeIf { it.imageUris?.small == null }
             cardList.postValue(searchCards)
         }
     }
-    
-    fun loadNextPage(){
+
+    fun loadNextPage() {
         val url = searchBase.value?.nextPage!!
         var newList: List<Card>
-        scope.launch { 
-            val response = searchRepo.getNextPage(url)?.cards
+        scope.launch {
+            val response = networkRepo.getNextPage(url)?.cards
             val oldList = cardList.value?.toMutableList()
             newList = oldList.orEmpty() + response.orEmpty()
             cardList.postValue(newList)
@@ -90,28 +120,23 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     }
 
     fun getCardsByDeckId(deckId: Long) {
-        scope.launch { mCurrentDeck = repo.getDeckById(deckId) }
+        scope.launch { mCurrentDeck = dbRepo.getDeckById(deckId) }
     }
 
     fun deleteDeckById() {
         if (mCurrentDeck?.value?.cards.isNullOrEmpty()) {
             scope.launch {
-                repo.deleteDeckById(mDeckId.value!!)
+                dbRepo.deleteDeckById(mDeckId.value!!)
             }
         }
-    }
-
-    //viewmodel specific coroutine scope for threads so insert doesnt block ui
-    suspend fun insertDeck(deck: Deck) = viewModelScope.launch {
-        repo.insertDeck(deck)
     }
 
     suspend fun insertCardtoDeck(card: Card, count: Int) = viewModelScope.launch {
         val currentDeck = mCurrentDeck?.value!!.deck
         val cardCount = CardCount(card.cardId, count, card)
-        repo.insertCardCount(cardCount)
+        dbRepo.insertCardCount(cardCount)
         val junction = DeckCardJoin(cardCount.id, currentDeck.deckId!!)
-        repo.insertRelation(junction)
+        dbRepo.insertRelation(junction)
         if (currentDeck.cIdentity.isNullOrEmpty()) {
             updateDeckColorId(currentDeck.deckId!!, card.colors!!.joinToString(","))
         } else {
@@ -123,12 +148,12 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     }
 
     fun updateDeckColorId(deckId: Long, colorId: String) = viewModelScope.launch {
-        repo.updateDeckColorId(deckId, colorId)
+        dbRepo.updateDeckColorId(deckId, colorId)
     }
 
     fun updateCardCount(oldCard: CardCount, count: Int) = viewModelScope.launch {
         val newCardCount = CardCount(oldCard.id, count, oldCard.card)
-        repo.insertCardCount(newCardCount)
+        dbRepo.insertCardCount(newCardCount)
     }
 
     fun updateDeckBackground(deck: Deck, cardCount: CardCount, imageView: ImageView) =
@@ -152,50 +177,14 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
                     override fun onLoadCleared(placeholder: Drawable?) {
                     }
                 })
-            repo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
+            dbRepo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
         }
 
-    suspend fun newDeck() = viewModelScope.launch {
-        val word = "New Deck"
-        val time = System.currentTimeMillis()
-        val deck = Deck(word, time)
-        var deckId: Long = 0
-        checkExistingName(deck)
-        insertDeck(deck)
-        withContext(Dispatchers.IO) {
-            deckId = repo.getNewDeckId(deck.name)
-        }
-        setDeckId(deckId)
 
-    }
-
-    //checks name of deck and increments name by 1 if it exists
-    fun checkExistingName(deck: Deck): Deck {
-        var deckName = deck.name
-        Log.d("salami", "initial $deckName")
-        var count = 0
-        fun checkNames() {
-            if (deckNames.contains(deckName)) {
-                count++
-//                if (deckNames.value!!.contains(deckName.plus(count))) {
-                if (deckNames.contains(deckName.plus(count))) {
-                    Log.d("salami", count.toString())
-                    checkNames()
-                }
-            }
-        }
-        checkNames()
-        if (count != 0) {
-            deckName = deckName.plus(count)
-            deck.name = deckName
-            Log.d("salami", "changed ${deck.name}")
-        }
-        return deck
-    }
 
 
     fun refreshListUI() {
-        allLDDecks = repo.allLDDecks
+        allLDDecks = dbRepo.allLDDecks
     }
 
     fun setDeckId(deckId: Long) {
@@ -279,4 +268,5 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         chart.setDrawBarShadow(true)
         chart.invalidate()
     }
+
 }
