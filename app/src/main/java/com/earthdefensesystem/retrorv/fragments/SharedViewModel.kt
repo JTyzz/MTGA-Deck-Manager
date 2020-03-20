@@ -41,6 +41,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
 
     //search fragment
     val cardList = MutableLiveData<List<Card>>()
+    val searchBase : MutableLiveData<Base> by lazy {
+        MutableLiveData<Base>() }
 
     //list fragment
     var deckNamesLD: LiveData<List<String>>
@@ -68,9 +70,22 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
 
     fun loadSearchCards(query: String) {
         scope.launch {
-            val searchCards = searchRepo.getSearchCards(query)
+            val response = searchRepo.getSearchCards(query)
+            searchBase.postValue(response)
+            val searchCards = response?.cards?.toMutableList()
             searchCards?.removeIf { it.imageUris?.small == null }
             cardList.postValue(searchCards)
+        }
+    }
+    
+    fun loadNextPage(){
+        val url = searchBase.value?.nextPage!!
+        var newList: List<Card>
+        scope.launch { 
+            val response = searchRepo.getNextPage(url)?.cards
+            val oldList = cardList.value?.toMutableList()
+            newList = oldList.orEmpty() + response.orEmpty()
+            cardList.postValue(newList)
         }
     }
 
@@ -140,7 +155,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
             repo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
         }
 
-
     suspend fun newDeck() = viewModelScope.launch {
         val word = "New Deck"
         val time = System.currentTimeMillis()
@@ -154,8 +168,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         setDeckId(deckId)
 
     }
-
-
 
     //checks name of deck and increments name by 1 if it exists
     fun checkExistingName(deck: Deck): Deck {
@@ -179,6 +191,37 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
             Log.d("salami", "changed ${deck.name}")
         }
         return deck
+    }
+
+
+    fun refreshListUI() {
+        allLDDecks = repo.allLDDecks
+    }
+
+    fun setDeckId(deckId: Long) {
+        this.mDeckId.value = deckId
+    }
+
+    fun getDeckId(): Long {
+        return mDeckId.value!!
+    }
+
+    private fun checkDeckColorId(card: Card, deck: Deck): String {
+        val cardColor = card.colors
+        val deckColor = deck.cIdentity?.split(",")?.toMutableList()
+
+        for (item in cardColor!!.iterator()) {
+            if (deckColor?.contains(item)!!) {
+                continue
+            } else {
+                deckColor.add(item)
+            }
+        }
+        val sortedDeckColor = deckColor?.apply {
+            sort()
+        }
+        Log.d("debug", "sorted ${sortedDeckColor?.joinToString(",")!!}")
+        return sortedDeckColor.joinToString(",")
     }
 
     fun drawChart(chart: BarChart, cardList: List<CardCount>) {
@@ -215,12 +258,12 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         chart.axisRight.isEnabled = false
 
         val entries = ArrayList<BarEntry>()
-            entries.add(BarEntry(0f, cmc1))
-            entries.add(BarEntry(1f, cmc2))
-            entries.add(BarEntry(2f, cmc3))
-            entries.add(BarEntry(3f, cmc4))
-            entries.add(BarEntry(4f, cmc5))
-            entries.add(BarEntry(5f, cmc6))
+        entries.add(BarEntry(0f, cmc1))
+        entries.add(BarEntry(1f, cmc2))
+        entries.add(BarEntry(2f, cmc3))
+        entries.add(BarEntry(3f, cmc4))
+        entries.add(BarEntry(4f, cmc5))
+        entries.add(BarEntry(5f, cmc6))
 
 
         val set = BarDataSet(entries, "CMCDataSet")
@@ -231,44 +274,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
             getApplication<Application>().resources.getColor(R.color.extradark, null)
         val data = BarData(set)
 
-        data.barWidth = 0.4f
+        data.barWidth = 0.5f
         chart.data = data
         chart.setDrawBarShadow(true)
         chart.invalidate()
-    }
-
-    fun refreshListUI(){
-        allLDDecks = repo.allLDDecks
-    }
-
-    fun setDeckId(deckId: Long) {
-        this.mDeckId.value = deckId
-    }
-
-    fun getDeckId(): Long {
-        return mDeckId.value!!
-    }
-
-
-    fun checkDeckColorId(card: Card, deck: Deck): String {
-        val cardColor = card.colors
-        val deckColor= deck.cIdentity?.split(",")?.toMutableList()
-
-        for (item in cardColor!!.iterator()) {
-            if (deckColor?.contains(item)!!) {
-                continue
-            } else {
-                Log.d("debug", "before ${deckColor.joinToString(",")}")
-                deckColor.add(item)
-                Log.d("debug", "after ${deckColor.joinToString(",")}")
-                Log.d("debug", "$item has been added")
-
-            }
-        }
-        val sortedDeckColor = deckColor?.apply {
-            sort()
-        }
-        Log.d("debug", "sorted ${sortedDeckColor?.joinToString(",")!!}")
-        return sortedDeckColor?.joinToString(",")!!
     }
 }

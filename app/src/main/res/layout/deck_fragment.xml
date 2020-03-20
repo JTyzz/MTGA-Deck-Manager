@@ -1,66 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/deck_fragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/deck_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="false"
     android:background="@color/colorPrimaryDark"
     tools:context=".fragments.DeckFragment">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/deck_guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".7"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deck_rv"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="@id/deck_guideline"
+        app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
-
-    <ImageView
-        android:id="@+id/deck_background"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/deck_details_layout"
         android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:src="@color/dark"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="@id/deck_guideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
-    <TextView
-        android:id="@+id/deck_name_tv"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/rose"
-        android:text="TextView"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="@+id/deck_background"
-        app:layout_constraintBottom_toBottomOf="@id/deck_background"
-        app:layout_constraintTop_toTopOf="@id/deck_background"
-        app:layout_constraintEnd_toEndOf="@id/deck_background"/>
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/mana_chart"
-        android:layout_width="0dp"
-        android:layout_height="75dp"
-        app:layout_constraintStart_toStartOf="@id/deck_guideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/deck_background"
-        />
-    <View
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/deck_guideline"
+        android:background="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/vertical_guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:id="@+id/deck_background_iv"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:src="@color/dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/deck_name_tv" />
+
+        <TextView
+            android:id="@+id/deck_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Deck Name"
+            android:textColor="@color/rose"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@id/deck_background_iv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/mana_chart"
+            android:layout_width="0dp"
+            android:layout_height="75dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/deck_background_iv" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
         android:layout_width="0dp"
         android:layout_height="15dp"
         android:background="@drawable/blacktransparent_gradient"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_rv"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/horizontal_guideline"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontal_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.35" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/vertical_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.70" />
+
+    <Button
+        android:id="@+id/edit_deck_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_outline"
+        android:textColor="@color/rose"
+        android:text="Edit Deck"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/deck_details_layout" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

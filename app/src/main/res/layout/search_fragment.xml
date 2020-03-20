@@ -5,13 +5,15 @@
     android:id="@+id/search_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
+    android:background="@color/colorPrimary"
     tools:context=".fragments.SearchFragment">
 
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_rv"
+        android:background="@color/colorPrimaryDark"
+        android:layout_margin="2dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -28,8 +30,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="0dp"
-        android:layout_height="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+
         android:background="@drawable/blacktransparent_gradient_down"
         />
 
@@ -40,6 +43,7 @@
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

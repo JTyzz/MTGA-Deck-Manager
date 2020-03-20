@@ -9,14 +9,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckAdapter
+import com.earthdefensesystem.retrorv.adapter.SearchAdapter
+import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.CardCount
 import com.github.mikephil.charting.charts.BarChart
+import kotlinx.coroutines.runBlocking
+import java.lang.StringBuilder
 
 class DeckFragment : Fragment() {
 
@@ -38,25 +44,24 @@ class DeckFragment : Fragment() {
         }
         Log.d("debug", "New deck fragment created!")
         val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.deck_rv)
-        val decknameTV = view.findViewById<TextView>(R.id.deck_name_tv)
-        val deckIV = view.findViewById<ImageView>(R.id.deck_background)
-        val deckChart = view.findViewById<BarChart>(R.id.mana_chart)
-
+        val deckRV = view.findViewById<RecyclerView>(R.id.deck_rv)
         val deckAdapter =
             DeckAdapter(requireContext()) { cardCount: CardCount -> onItemClick(cardCount) }
-        recyclerView.layoutManager =
+        deckRV.layoutManager =
             LinearLayoutManager(requireContext())
-        recyclerView.adapter = deckAdapter
+        deckRV.adapter = deckAdapter
 
-//        viewModel.openDeckCard?.observe(viewLifecycleOwner, Observer { deckcard ->
-//            deckcard?.let {
-//                Log.d("deckcheck", "${it.deck.name} is loaded")
-//                deckAdapter.loadCards(it.cards)
-//                decknameTV.text = it.deck.name
+        val searchRV = view.findViewById<RecyclerView>(R.id.search_rv)
+        val searchAdapter =
+            SearchAdapter(requireContext()) { cardItem: Card ->
+                runBlocking {
+                    cardItemClicked(cardItem)
+                }}
+        searchRV.layoutManager = GridLayoutManager(requireContext(), 2)
+        searchRV.adapter = searchAdapter
+        val editDeckBtn = view.findViewById<Button>(R.id.edit_deck_btn)
+        val deckChart = view.findViewById<BarChart>(R.id.mana_chart)
 
-//            }
-//        })
 
 
         viewModel.mCurrentDeck?.observe(viewLifecycleOwner, Observer { cards ->
@@ -66,26 +71,16 @@ class DeckFragment : Fragment() {
             }
         })
 
+        viewModel.cardList.observe(viewLifecycleOwner, Observer { cards ->
+            cards?.let { searchAdapter.loadCards(it)}
+        })
+
 
         val callback = requireActivity()
             .onBackPressedDispatcher
             .addCallback(viewLifecycleOwner) {
-                val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                transaction.remove(DeckFragment())
-                transaction.remove(SearchFragment())
-                requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.GONE
-                requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility =
-                    View.GONE
-                requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility =
-                    View.VISIBLE
-                transaction.replace(
-                    R.id.screen_frame,
-                    ListFragment()
-                )
-                transaction.commit()
+                requireActivity().supportFragmentManager.popBackStackImmediate()
             }
-
-
         callback.isEnabled
 
         return view
@@ -96,6 +91,12 @@ class DeckFragment : Fragment() {
     private fun onItemClick(deck: CardCount) {
         Log.d("salami", "hello ${deck.card.name}")
         makeAlertDialog(deck)
+    }
+
+    private fun cardItemClicked(cardItem: Card) {
+        runBlocking {
+            viewModel.insertCardtoDeck(cardItem, 4)
+        }
     }
 
     private fun makeAlertDialog(cardItem: CardCount) {
@@ -125,7 +126,7 @@ class DeckFragment : Fragment() {
         artButton.setOnClickListener {
             val deck = viewModel.mCurrentDeck?.value?.deck
             Log.d("salami", "${deck?.name} art button clicked")
-            val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background)
+            val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background_iv)
             viewModel.updateDeckBackground(deck!!, cardItem, deckIV)
             popupWindow.dismiss()
         }
@@ -136,6 +137,37 @@ class DeckFragment : Fragment() {
         }
         //show popop window
         popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
+
+    }
+
+    private fun showSearchDialog() {
+        val arrayColors = R.array.magic_colors
+        val arrayChecked = booleanArrayOf(false, false, false, false, false)
+        val builder = AlertDialog.Builder(requireContext())
+        val colorsList = arrayOf("W", "B", "R", "U", "G")
+        builder.setTitle("Select colors")
+        builder.setMultiChoiceItems(arrayColors, arrayChecked) { _, i, isChecked ->
+            arrayChecked[i] = isChecked
+            val color = colorsList[i]
+            Toast.makeText(requireContext(), "$color $isChecked", Toast.LENGTH_SHORT).show()
+        }
+        builder.setPositiveButton("Search") { _, _ ->
+            val sb = StringBuilder()
+            for (j in arrayChecked.indices) {
+                val checked = arrayChecked[j]
+                if (checked) {
+                    sb.append(colorsList[j])
+                }
+            }
+            val colorSearch = "c:$sb+f:standard"
+            Toast.makeText(requireContext(), colorSearch, Toast.LENGTH_SHORT).show()
+            viewModel.loadSearchCards(colorSearch)
+        }
+        builder.setNeutralButton("Cancel") { dialogInterface, _ ->
+            dialogInterface.cancel()
+        }
+        val dialog = builder.create()
+        dialog.show()
 
     }
 }

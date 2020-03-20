@@ -84,11 +84,11 @@ class ListFragment : Fragment() {
     private fun toDeckFragment() {
         val transaction = requireActivity().supportFragmentManager.beginTransaction()
         transaction.remove(ListFragment())
-        requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
-        requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.VISIBLE
-        requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility = View.GONE
-        transaction.replace(R.id.top_frame, DeckFragment())
-        transaction.replace(R.id.bottom_frame, SearchFragment())
+//        requireActivity().findViewById<FrameLayout>(R.id.top_frame).visibility = View.VISIBLE
+//        requireActivity().findViewById<FrameLayout>(R.id.bottom_frame).visibility = View.VISIBLE
+//        requireActivity().findViewById<FrameLayout>(R.id.screen_frame).visibility = View.GONE
+        transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right).replace(R.id.top_frame, DeckFragment())
+        transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right).replace(R.id.bottom_frame, SearchFragment())
         transaction.addToBackStack(null)
         transaction.commit()
     }

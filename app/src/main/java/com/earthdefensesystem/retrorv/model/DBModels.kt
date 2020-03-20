@@ -8,7 +8,11 @@ import com.google.gson.annotations.SerializedName
 data class Base(
 
     @SerializedName("data")
-    val cards: List<Card>
+    val cards: List<Card>,
+    @SerializedName("has_more")
+    val hasMore: Boolean,
+    @SerializedName("next_page")
+    val nextPage: String
 )
 
 data class Card(
