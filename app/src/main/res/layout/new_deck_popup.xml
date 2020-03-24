@@ -1,32 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/newdeck_popup_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#c7bf98"
+    android:background="@drawable/rounded_black_lightoutline"
     android:padding="20dp">
-    <EditText
-        android:id="@+id/nd_name_et"
+
+    <TextView
+        android:id="@+id/filters_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Advanced Filters"
+        android:textColor="@color/middark"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:gravity="center"
-        android:inputType="textPersonName"
-        android:layout_marginStart="50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Deck name"
         />
 
-    <Button
-        android:id="@+id/nd_popup_close_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Close Me"
-        app:layout_constraintStart_toEndOf="@+id/nd_name_et"
-        app:layout_constraintTop_toBottomOf="@id/nd_name_et" />
+    <ImageButton
+        android:id="@+id/w_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv"
+        app:srcCompat="@drawable/ic_w" />
 
+    <ImageButton
+        android:id="@+id/b_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/u_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_b" />
+
+    <ImageButton
+        android:id="@+id/r_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/b_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_r" />
+
+    <ImageButton
+        android:id="@+id/u_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/w_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_u" />
+
+    <ImageButton
+        android:id="@+id/g_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/r_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_g" />
+
+    <ImageButton
+        android:id="@+id/c_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/g_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_c" />
+
+    <ImageButton
+        android:id="@+id/one_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/w_btn"
+        app:srcCompat="@drawable/ic_1" />
+
+    <ImageButton
+        android:id="@+id/two_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/one_btn"
+        app:layout_constraintTop_toBottomOf="@+id/u_btn"
+        app:srcCompat="@drawable/ic_2" />
+
+    <ImageButton
+        android:id="@+id/three_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/b_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_3" />
+
+    <ImageButton
+        android:id="@+id/u_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/w_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_u" />
+
+    <ImageButton
+        android:id="@+id/g_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/r_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_g" />
+
+    <ImageButton
+        android:id="@+id/c_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/g_btn"
+        app:layout_constraintTop_toBottomOf="@+id/filters_tv"
+        app:srcCompat="@drawable/ic_c" />
 </androidx.constraintlayout.widget.ConstraintLayout>

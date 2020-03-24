@@ -19,14 +19,6 @@ class DeckRepo(private val deckDao: DeckDao) {
         return deckDao.setNewDeck(deck)
     }
 
-    suspend fun getNewDeckId(name: String): Long{
-        return deckDao.getNewDeckId(name)
-    }
-
-    suspend fun insertDeck(deck: Deck) {
-        deckDao.insertDeck(deck)
-    }
-
     suspend fun insertCardCount(cardCount: CardCount){
         deckDao.insertCardCount(cardCount)
     }

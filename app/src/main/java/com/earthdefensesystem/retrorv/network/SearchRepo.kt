@@ -2,7 +2,8 @@ package com.earthdefensesystem.retrorv.network
 
 import com.earthdefensesystem.retrorv.model.Base
 
-class SearchRepo(private val api: APIService) : BaseRepo() {
+class SearchRepo() : BaseRepo() {
+    private val api = APIService.createService()
 
     suspend fun getSearchCards(color: String): Base? {
         return safeApiCall(

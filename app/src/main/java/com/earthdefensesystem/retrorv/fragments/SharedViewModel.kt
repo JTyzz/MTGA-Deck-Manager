@@ -9,6 +9,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.DataSource
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -16,7 +19,8 @@ import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.*
-import com.earthdefensesystem.retrorv.network.ApiFactory
+import com.earthdefensesystem.retrorv.network.CardSearchDataSource
+import com.earthdefensesystem.retrorv.network.CardSearchDataSourceFactory
 import com.earthdefensesystem.retrorv.network.SearchRepo
 import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
@@ -30,7 +34,6 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class SharedViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
-    private val networkRepo: SearchRepo = SearchRepo(ApiFactory.apiService)
     private val dbRepo: DeckRepo
     private val context = application.applicationContext
 
@@ -39,15 +42,10 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         get() = parentJob + Dispatchers.Default
     private val scope = CoroutineScope(coroutineContext)
 
-    //deck fragment
-    val cardList = MutableLiveData<List<Card>>()
-    val searchBase: MutableLiveData<Base> by lazy {
-        MutableLiveData<Base>()
-    }
+    lateinit var mLiveData: LiveData<PagedList<Card>>
     var mCurrentDeck: LiveData<DeckWithCards>? = null
     var mDeckId = MutableLiveData<Long>()
 
-    //list fragment
     var deckNamesLD: LiveData<List<String>>
     var deckNames: MutableList<String> = mutableListOf()
     var allLDDecks: LiveData<List<Deck>>
@@ -98,26 +96,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     }
 
     /* DECK FRAGMENT FUNCTIONS */
-    fun loadSearchCards(query: String) {
-        scope.launch {
-            val response = networkRepo.getSearchCards(query)
-            searchBase.postValue(response)
-            val searchCards = response?.cards?.toMutableList()
-            searchCards?.removeIf { it.imageUris?.small == null }
-            cardList.postValue(searchCards)
-        }
-    }
-
-    fun loadNextPage() {
-        val url = searchBase.value?.nextPage!!
-        var newList: List<Card>
-        scope.launch {
-            val response = networkRepo.getNextPage(url)?.cards
-            val oldList = cardList.value?.toMutableList()
-            newList = oldList.orEmpty() + response.orEmpty()
-            cardList.postValue(newList)
-        }
-    }
 
     fun getCardsByDeckId(deckId: Long) {
         scope.launch { mCurrentDeck = dbRepo.getDeckById(deckId) }
@@ -147,7 +125,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         }
     }
 
-    fun updateDeckColorId(deckId: Long, colorId: String) = viewModelScope.launch {
+    private fun updateDeckColorId(deckId: Long, colorId: String) = viewModelScope.launch {
         dbRepo.updateDeckColorId(deckId, colorId)
     }
 
@@ -191,7 +169,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         this.mDeckId.value = deckId
     }
 
-    fun getDeckId(): Long {
+    private fun getDeckId(): Long {
         return mDeckId.value!!
     }
 

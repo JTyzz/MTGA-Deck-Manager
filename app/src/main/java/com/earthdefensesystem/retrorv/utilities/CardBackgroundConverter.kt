@@ -11,7 +11,6 @@ import com.earthdefensesystem.retrorv.model.CardCount
 
 class CardBackgroundConverter {
     companion object {
-        //getApplication<Application>().resources.getColor
 
         fun setCardBGColor(view: View, list: List<String>) {
             val colorMap = HashMap<String, Int>()
