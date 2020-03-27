@@ -4,11 +4,12 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
+import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import android.widget.ToggleButton
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.*
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -43,13 +44,22 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     private val scope = CoroutineScope(coroutineContext)
 
     lateinit var mLiveData: LiveData<PagedList<Card>>
-    var mCurrentDeck: LiveData<DeckWithCards>? = null
+    lateinit var mCurrentDeck : LiveData<DeckWithCards?>
     var mDeckId = MutableLiveData<Long>()
+    val finDeckId: LiveData<Long> = Transformations.switchMap(mDeckId){
+        deckId -> dbRepo.get
+    }
 
     var deckNamesLD: LiveData<List<String>>
     var deckNames: MutableList<String> = mutableListOf()
     var allLDDecks: LiveData<List<Deck>>
 
+    val manaList = mutableListOf<String>()
+    val cmcList = mutableListOf<String>()
+    val typeList = mutableListOf<String>()
+    var typeString = String()
+    var manaString = String()
+    var cmcString = String()
 
 
     init {
@@ -71,8 +81,11 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         val word = "New Deck"
         val time = System.currentTimeMillis()
         val deck = Deck(word, time)
+        val id = dbRepo.setNewDeck(deck)
+        Log.d("debug", "viewmodel deck id $id")
         checkExistingName(deck)
-        setDeckId(dbRepo.setNewDeck(deck))
+        setDeckId(id)
+//        mCurrentDeck = getCardsByDeckId(id)
     }
 
     //checks name of deck and increments name by 1 if it exists
@@ -97,8 +110,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
 
     /* DECK FRAGMENT FUNCTIONS */
 
-    fun getCardsByDeckId(deckId: Long) {
-        scope.launch { mCurrentDeck = dbRepo.getDeckById(deckId) }
+    fun getCardsByDeckId(deckId: Long) : LiveData<DeckWithCards?>{
+        return dbRepo.getDeckById(deckId)
     }
 
     fun deleteDeckById() {
@@ -159,13 +172,12 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         }
 
 
-
-
     fun refreshListUI() {
         allLDDecks = dbRepo.allLDDecks
     }
 
     fun setDeckId(deckId: Long) {
+        mCurrentDeck = getCardsByDeckId(deckId)
         this.mDeckId.value = deckId
     }
 
@@ -245,6 +257,93 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         chart.data = data
         chart.setDrawBarShadow(true)
         chart.invalidate()
+    }
+
+    fun filterMana(
+        isChecked: Boolean,
+        manaList: MutableList<String>,
+        s: String,
+        frame: FrameLayout
+    ): String {
+        if (isChecked) {
+            if (!manaList.contains(s)) {
+                manaList.add(s)
+
+            }
+            frame.background =
+                getApplication<Application>().resources.getDrawable(R.drawable.item_selected, null)
+        } else if (!isChecked) {
+            if (manaList.contains(s)) {
+                manaList.remove(s)
+                frame.background = getApplication<Application>().resources.getDrawable(
+                    R.drawable.item_unselected,
+                    null
+                )
+            }
+        }
+        Log.d("debug", manaList.joinToString())
+        return "c:${manaList.joinToString("")}"
+    }
+
+    fun filterCMC(
+        isChecked: Boolean,
+        cmcList: MutableList<String>,
+        i: Int,
+        frame: FrameLayout
+    ): String {
+        if (isChecked) {
+            if (!cmcList.contains("cmc>$i") || !cmcList.contains("cmc:$i")) {
+                frame.background = getApplication<Application>().resources.getDrawable(
+                    R.drawable.item_selected,
+                    null
+                )
+                if (i == 6) {
+                    cmcList.add("cmc>$i")
+                } else {
+                    cmcList.add("cmc:$i")
+                }
+                frame.background = getApplication<Application>().resources.getDrawable(
+                    R.drawable.item_selected,
+                    null
+                )
+            }
+        } else if (!isChecked) {
+            if (cmcList.contains("cmc:$i") || cmcList.contains("cmc>$i")) {
+                if (i == 6) {
+                    cmcList.remove("cmc>$i")
+                } else {
+                    cmcList.remove("cmc:$i")
+                }
+                frame.background = getApplication<Application>().resources.getDrawable(
+                    R.drawable.item_unselected,
+                    null
+                )
+            }
+        }
+        return cmcList.joinToString("+OR+")
+    }
+
+    fun filterType(
+        isChecked: Boolean,
+        typeList: MutableList<String>,
+        s: String,
+        btn: ToggleButton
+    ): String {
+        if (isChecked) {
+            if (!typeList.contains("type=$s")) {
+                typeList.add("type=$s")
+            }
+            btn.background =
+                getApplication<Application>().resources.getDrawable(R.drawable.btn_selected, null)
+            btn.setTextColor(ContextCompat.getColor(getApplication<Application>(), R.color.bar))
+        } else if (!isChecked) {
+            if (typeList.contains("type=$s")) {
+                typeList.remove("type=$s")
+            }
+            btn.background = getApplication<Application>().getDrawable(R.drawable.btn_unselected)
+            btn.setTextColor(ContextCompat.getColor(getApplication<Application>(), R.color.rose))
+        }
+        return "(${typeList.joinToString("+OR+")})"
     }
 
 }

@@ -10,7 +10,7 @@ class DeckRepo(private val deckDao: DeckDao) {
     val deckNames: LiveData<List<String>> = deckDao.getNames()
 
     //gets deck object with a list<Cards> by decks id
-    fun getDeckById(deckId: Long): LiveData<DeckWithCards> {
+    fun getDeckById(deckId: Long): LiveData<DeckWithCards?> {
         return deckDao.getDeckWithCardsById(deckId)
     }
 

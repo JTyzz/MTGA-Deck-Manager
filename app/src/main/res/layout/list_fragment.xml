@@ -11,7 +11,7 @@
     <androidx.appcompat.widget.SearchView
         android:id="@+id/list_searchview"
         android:layout_width="250dp"
-        android:layout_height="50dp"
+        android:layout_height="30dp"
         android:background="@drawable/rounded_button_outline"
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
@@ -27,7 +27,7 @@
     <Button
         android:id="@+id/new_deck_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:background="@drawable/rounded_button_outline"

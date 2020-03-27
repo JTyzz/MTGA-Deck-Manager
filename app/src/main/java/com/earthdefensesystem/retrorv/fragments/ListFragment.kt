@@ -2,6 +2,7 @@ package com.earthdefensesystem.retrorv.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
@@ -25,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.Exception
+import kotlin.random.Random
 
 class ListFragment : Fragment() {
 
@@ -60,17 +64,18 @@ class ListFragment : Fragment() {
             viewModel.deckNames = it.toMutableList()
         })
 
-
         svEt.setTextColor(resources.getColor(R.color.rose, activity?.theme))
         svEt.setHintTextColor(resources.getColor(R.color.rose, activity?.theme))
 
         ndBtn.setOnClickListener {
             runBlocking {
                 viewModel.newDeck()
+                viewModel.mDeckId.observeOnce(Observer {
+                    viewModel.getCardsByDeckId(viewModel.mDeckId.value!!)
+                    Log.d("debug", "listfrag id $it")
+                    toDeckFragment()
+                })
             }
-            viewModel.mDeckId.observe(viewLifecycleOwner, Observer {
-                toDeckFragment()
-            })
         }
         return view
     }
@@ -78,8 +83,12 @@ class ListFragment : Fragment() {
     private fun listItemClicked(deckItem: Deck) {
         runBlocking {
             viewModel.setDeckId(deckItem.deckId!!)
+//            viewModel.getCardsByDeckId(deckItem.deckId!!)
+            viewModel.mCurrentDeck.observeOnce(Observer {
+                toDeckFragment()
+            })
         }
-        toDeckFragment()
+
     }
 
     private fun toDeckFragment() {
@@ -91,4 +100,21 @@ class ListFragment : Fragment() {
         }
     }
 
+    fun <T> LiveData<T>.observeOnce(observer: Observer<T>) {
+        observeForever(object : Observer<T> {
+            override fun onChanged(value: T) {
+                observer.onChanged(value)
+                removeObserver(this)
+            }
+        })
+    }
+
+    fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, observer: (T) -> Unit) {
+        observe(owner, object : Observer<T> {
+            override fun onChanged(value: T) {
+                removeObserver(this)
+                observer(value)
+            }
+        })
+    }
 }

@@ -12,11 +12,18 @@
         tools:layout="@layout/list_fragment" >
         <action
             android:id="@+id/action_listFragment_to_deckFragment"
-            app:destination="@id/deckFragment" />
+            app:destination="@id/deckFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popUpTo="@id/deckFragment" />
     </fragment>
     <fragment
         android:id="@+id/deckFragment"
         android:name="com.earthdefensesystem.retrorv.fragments.DeckFragment"
         android:label="deck_fragment"
-        tools:layout="@layout/deck_fragment" />
+        tools:layout="@layout/deck_fragment" >
+    <action
+        android:id="@+id/action_deckFragment_to_listFragment"
+        app:destination="@id/listFragment" />
+    </fragment>
 </navigation>

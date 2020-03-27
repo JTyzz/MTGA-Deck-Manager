@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
     tools:context=".fragments.DeckFragment">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deck_rv"
         android:layout_width="wrap_content"
@@ -94,9 +95,41 @@
         android:background="@drawable/rounded_button_outline"
         android:textColor="@color/rose"
         android:text="Edit Deck"
+        android:stateListAnimator="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
         app:layout_constraintTop_toBottomOf="@+id/deck_details_layout" />
+
+    <Button
+        android:id="@+id/filter_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_outline"
+        android:textColor="@color/rose"
+        android:text="Filters"
+        android:stateListAnimator="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/edit_deck_btn" />
+    <View
+        android:id="@+id/fullscreen_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="visible"
+        android:background="@color/opaque"
+        />
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintTop_toTopOf="@id/fullscreen_view"
+        app:layout_constraintBottom_toBottomOf="@id/fullscreen_view"
+        app:layout_constraintStart_toStartOf="@id/fullscreen_view"
+        app:layout_constraintEnd_toEndOf="@id/fullscreen_view"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,5 +22,6 @@
     <color name="white">#FFF8D9</color>
     <color name="legendary">#CBB93F</color>
     <color name="bar">#FF5722</color>
+    <color name="opaque">#D9000000</color>
 
 </resources>

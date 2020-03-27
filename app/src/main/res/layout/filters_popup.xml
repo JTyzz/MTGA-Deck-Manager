@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/newdeck_popup_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/popup_background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/filters_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Advanced Filters"
+        android:textColor="@color/middark"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/w_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv">
+
+        <ToggleButton
+            android:id="@+id/w_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_w"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn=""
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/filters_tv" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/u_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/w_frame"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv">
+
+        <ToggleButton
+            android:id="@+id/u_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_u"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/b_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/u_frame"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv">
+
+        <ToggleButton
+            android:id="@+id/b_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_b"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/r_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/b_frame"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv">
+
+        <ToggleButton
+            android:id="@+id/r_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_r"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/g_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/r_frame"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv">
+
+        <ToggleButton
+            android:id="@+id/g_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_g"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/c_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/g_frame"
+        app:layout_constraintTop_toBottomOf="@id/filters_tv">
+
+        <ToggleButton
+            android:id="@+id/c_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_c"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/one_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/w_frame">
+
+        <ToggleButton
+            android:id="@+id/one_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_1"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/two_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/one_frame"
+        app:layout_constraintTop_toBottomOf="@id/u_frame">
+
+        <ToggleButton
+            android:id="@+id/two_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_2"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/three_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/two_frame"
+        app:layout_constraintTop_toBottomOf="@id/b_frame">
+
+        <ToggleButton
+            android:id="@+id/three_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_3"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/four_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/three_frame"
+        app:layout_constraintTop_toBottomOf="@id/r_frame">
+
+        <ToggleButton
+            android:id="@+id/four_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_4"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/five_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintStart_toEndOf="@id/four_frame"
+        app:layout_constraintTop_toBottomOf="@id/g_frame">
+
+        <ToggleButton
+            android:id="@+id/five_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_5"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/sixplus_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/item_unselected"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/five_frame"
+        app:layout_constraintTop_toBottomOf="@id/c_frame">
+
+        <ToggleButton
+            android:id="@+id/sixplus_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/ic_6plus"
+            android:scaleType="fitCenter"
+            android:textOff=""
+            android:textOn="" />
+    </FrameLayout>
+
+    <ToggleButton
+        android:id="@+id/creature_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_unselected"
+        android:paddingHorizontal="15dp"
+        android:scaleType="fitCenter"
+        android:textColor="@color/rose"
+        android:textOff="@string/creature"
+        android:textOn="@string/creature"
+        app:layout_constraintEnd_toStartOf="@id/planeswalker_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/one_frame" />
+
+
+    <ToggleButton
+        android:id="@+id/planeswalker_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_unselected"
+        android:paddingHorizontal="15dp"
+        android:scaleType="fitCenter"
+        android:textColor="@color/rose"
+        android:textOff="@string/planeswalker"
+        android:textOn="@string/planeswalker"
+        app:layout_constraintEnd_toStartOf="@id/instant_btn"
+        app:layout_constraintStart_toEndOf="@id/creature_btn"
+        app:layout_constraintTop_toBottomOf="@id/one_frame" />
+
+    <ToggleButton
+        android:id="@+id/instant_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_unselected"
+        android:paddingHorizontal="15dp"
+        android:scaleType="fitCenter"
+        android:textColor="@color/rose"
+        android:textOff="@string/instant"
+        android:textOn="@string/instant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/planeswalker_btn"
+        app:layout_constraintTop_toBottomOf="@id/one_frame" />
+
+        <ToggleButton
+            android:id="@+id/sorcery_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_unselected"
+            android:paddingHorizontal="15dp"
+            android:scaleType="fitCenter"
+            android:textColor="@color/rose"
+            android:textOff="@string/sorcery"
+            android:textOn="@string/sorcery"
+            app:layout_constraintEnd_toStartOf="@id/enchantment_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/creature_btn"/>
+
+
+        <ToggleButton
+            android:id="@+id/enchantment_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_unselected"
+            android:paddingHorizontal="15dp"
+            android:scaleType="fitCenter"
+            android:textColor="@color/rose"
+            android:textOff="@string/enchantment"
+            android:textOn="@string/enchantment"
+            app:layout_constraintEnd_toStartOf="@id/artifact_btn"
+            app:layout_constraintStart_toEndOf="@id/sorcery_btn"
+            app:layout_constraintTop_toBottomOf="@id/planeswalker_btn"/>
+
+        <ToggleButton
+            android:id="@+id/artifact_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_unselected"
+            android:paddingHorizontal="15dp"
+            android:scaleType="fitCenter"
+            android:textColor="@color/rose"
+            android:textOff="@string/artifact"
+            android:textOn="@string/artifact"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/enchantment_btn"
+            app:layout_constraintTop_toBottomOf="@id/instant_btn"/>
+
+        <ToggleButton
+            android:id="@+id/land_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_unselected"
+            android:paddingHorizontal="15dp"
+            android:scaleType="fitCenter"
+            android:textColor="@color/rose"
+            android:textOff="@string/land"
+            android:textOn="@string/land"
+            app:layout_constraintEnd_toStartOf="@id/commander_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sorcery_btn"/>
+
+
+        <ToggleButton
+            android:id="@+id/commander_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_unselected"
+            android:paddingHorizontal="15dp"
+            android:scaleType="fitCenter"
+            android:textColor="@color/rose"
+            android:textOff="@string/commander"
+            android:textOn="@string/commander"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/land_btn"
+            app:layout_constraintTop_toBottomOf="@id/artifact_btn"/>
+
+    <Button
+        android:id="@+id/check_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check!"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/land_btn" />
+</androidx.constraintlayout.widget.ConstraintLayout>
