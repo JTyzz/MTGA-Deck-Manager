@@ -24,9 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.ListAdapter
 import com.earthdefensesystem.retrorv.model.Deck
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import com.earthdefensesystem.retrorv.model.DeckWithCards
+import kotlinx.coroutines.*
 import java.lang.Exception
 import kotlin.random.Random
 
@@ -36,7 +35,6 @@ class ListFragment : Fragment() {
     companion object {
         fun newInstance() = ListFragment()
     }
-
     private lateinit var viewModel: SharedViewModel
 
     override fun onCreateView(
@@ -52,7 +50,7 @@ class ListFragment : Fragment() {
         val svEt = sv.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         val recyclerView = view.findViewById<RecyclerView>(R.id.list_rv)
         val listAdapter =
-            ListAdapter(requireContext()) { deckItem: Deck -> listItemClicked(deckItem) }
+            ListAdapter(requireContext()) { deckItem: DeckWithCards -> listItemClicked(deckItem) }
         recyclerView.adapter = listAdapter
         recyclerView.layoutManager =
             GridLayoutManager(requireContext(), 3) as RecyclerView.LayoutManager?
@@ -69,52 +67,28 @@ class ListFragment : Fragment() {
 
         ndBtn.setOnClickListener {
             runBlocking {
-                viewModel.newDeck()
-                viewModel.mDeckId.observeOnce(Observer {
-                    viewModel.getCardsByDeckId(viewModel.mDeckId.value!!)
-                    Log.d("debug", "listfrag id $it")
-                    toDeckFragment()
-                })
+                val res = async {viewModel.insertDeck("New Deck")}
+                viewModel.setDeck(res.await())
+                toDeckFragment(res.await())
             }
         }
         return view
     }
 
-    private fun listItemClicked(deckItem: Deck) {
+    private fun listItemClicked(deckItem: DeckWithCards) {
         runBlocking {
-            viewModel.setDeckId(deckItem.deckId!!)
-//            viewModel.getCardsByDeckId(deckItem.deckId!!)
-            viewModel.mCurrentDeck.observeOnce(Observer {
-                toDeckFragment()
-            })
+            val res = async{viewModel.setDeck(deckItem.deck.deckId!!)}
+            res.await()
+            toDeckFragment(deckItem.deck.deckId!!)
         }
-
     }
 
-    private fun toDeckFragment() {
-        val action = ListFragmentDirections.actionListFragmentToDeckFragment()
+    private fun toDeckFragment(deckId: Long) {
+        val action = ListFragmentDirections.actionListFragmentToDeckFragment(deckId)
         try {
             view?.findNavController()?.navigate(action)
         } catch (e: Exception) {
             Log.d("debug", "Error: $e")
         }
-    }
-
-    fun <T> LiveData<T>.observeOnce(observer: Observer<T>) {
-        observeForever(object : Observer<T> {
-            override fun onChanged(value: T) {
-                observer.onChanged(value)
-                removeObserver(this)
-            }
-        })
-    }
-
-    fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, observer: (T) -> Unit) {
-        observe(owner, object : Observer<T> {
-            override fun onChanged(value: T) {
-                removeObserver(this)
-                observer(value)
-            }
-        })
     }
 }

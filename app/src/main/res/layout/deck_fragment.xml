@@ -111,20 +111,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
         app:layout_constraintTop_toBottomOf="@+id/edit_deck_btn" />
+    <ToggleButton
+        android:id="@+id/addcards_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_outline"
+        android:textColor="@color/rose"
+        android:textOn="Add Cards"
+        android:textOff="Add Cards"
+        android:stateListAnimator="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/filter_btn" />
     <View
         android:id="@+id/fullscreen_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:background="@color/opaque"
         />
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="@id/fullscreen_view"
         app:layout_constraintBottom_toBottomOf="@id/fullscreen_view"
         app:layout_constraintStart_toStartOf="@id/fullscreen_view"

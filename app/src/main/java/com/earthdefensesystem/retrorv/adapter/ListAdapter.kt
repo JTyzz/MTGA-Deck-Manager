@@ -1,6 +1,7 @@
 package com.earthdefensesystem.retrorv.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,15 +11,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.model.Deck
+import com.earthdefensesystem.retrorv.model.DeckWithCards
 import com.earthdefensesystem.retrorv.utilities.ImageSpanConverter
 import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import kotlinx.android.synthetic.main.deck_grid_item.view.*
+import java.lang.Exception
 
 
-class ListAdapter internal constructor(context: Context, val clickListener: (Deck) -> Unit) :
+class ListAdapter internal constructor(context: Context, val clickListener: (DeckWithCards) -> Unit) :
     RecyclerView.Adapter<ListAdapter.ViewHolder>(), Filterable {
 
-    private var decks = emptyList<Deck>()
+    private var decks = emptyList<DeckWithCards>()
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     var onItemClick: ((position: Int, view: View) -> Unit)? = null
 
@@ -35,24 +38,28 @@ class ListAdapter internal constructor(context: Context, val clickListener: (Dec
         holder.bind(decks[position], clickListener)
     }
 
-    internal fun loadDecks(decks: List<Deck>) {
+    internal fun loadDecks(decks: List<DeckWithCards>) {
         this.decks = decks
         notifyDataSetChanged()
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(deck: Deck, clickListener: (Deck) -> Unit) {
-            itemView.deck_tv.text = deck.name
-            if (deck.cIdentity != null){
-            itemView.deck_color_id.text = ImageSpanConverter.getSpannedManaImage(itemView.context, deck.cIdentity!!)
+        fun bind(deck: DeckWithCards, clickListener: (DeckWithCards) -> Unit) {
+            itemView.deck_tv.text = deck.deck.name
+            if (deck.deck.cIdentity != null){
+            itemView.deck_color_id.text = ImageSpanConverter.getSpannedManaImage(itemView.context, deck.deck.cIdentity!!)
                 }
             itemView.setOnClickListener { clickListener(deck) }
-            if (deck.uri != null) {
-                val bitmap = ImageStoreManager
-                    .getImageFromInternalStorage(itemView.context, deck.uri!!)
-                Glide.with(itemView.context)
-                    .load(bitmap)
-                    .into(itemView.deck_iv)
+            if (deck.deck.uri != null) {
+                try {
+                    val bitmap = ImageStoreManager
+                        .getImageFromInternalStorage(itemView.context, deck.deck.uri!!)
+                    Glide.with(itemView.context)
+                        .load(bitmap)
+                        .into(itemView.deck_iv)
+                } catch (e: Exception){
+                    Log.d("debug", "listadapter $e")
+                }
             }
         }
 
@@ -63,7 +70,7 @@ class ListAdapter internal constructor(context: Context, val clickListener: (Dec
     }
 }
 
-class CustomFilter(val list: List<Deck>, val adapter: ListAdapter) : Filter() {
+class CustomFilter(val list: List<DeckWithCards>, val adapter: ListAdapter) : Filter() {
     val inputList: List<Deck> = emptyList()
     override fun performFiltering(constraint: CharSequence?): FilterResults {
         var results: FilterResults = FilterResults()
@@ -87,7 +94,7 @@ class CustomFilter(val list: List<Deck>, val adapter: ListAdapter) : Filter() {
     }
 
     override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-        adapter.loadDecks(results?.values as List<Deck>)
+        adapter.loadDecks(results?.values as List<DeckWithCards>)
         adapter.notifyDataSetChanged()
     }
 }

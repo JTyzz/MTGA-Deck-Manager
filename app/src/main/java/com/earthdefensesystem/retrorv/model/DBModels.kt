@@ -42,6 +42,21 @@ data class Card(
     var imageUris: ImageUris?
 )
 
+data class ImageUris(
+    @SerializedName("art_crop")
+    val artCrop: String?,
+    @SerializedName("border_crop")
+    val borderCrop: String?,
+    @SerializedName("large")
+    val large: String?,
+    @SerializedName("normal")
+    val normal: String?,
+    @SerializedName("png")
+    val png: String?,
+    @SerializedName("small")
+    val small: String?
+)
+
 //class to allow decks to have different amounts of one card object
 @Entity(tableName = "cc_table")
 data class CardCount(
@@ -64,24 +79,6 @@ data class Deck(
     var uri: String? = null,
     var cIdentity:String? = null
 )
-
-
-data class ImageUris(
-    @SerializedName("art_crop")
-    val artCrop: String?,
-    @SerializedName("border_crop")
-    val borderCrop: String?,
-    @SerializedName("large")
-    val large: String?,
-    @SerializedName("normal")
-    val normal: String?,
-    @SerializedName("png")
-    val png: String?,
-    @SerializedName("small")
-    val small: String?
-)
-
-
 
 //junction between card and deck
 @Entity(primaryKeys = ["deck_id", "cc_id"])

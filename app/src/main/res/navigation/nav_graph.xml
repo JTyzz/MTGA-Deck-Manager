@@ -25,5 +25,8 @@
     <action
         android:id="@+id/action_deckFragment_to_listFragment"
         app:destination="@id/listFragment" />
+        <argument
+            android:name="deckId"
+            app:argType="long" />
     </fragment>
 </navigation>

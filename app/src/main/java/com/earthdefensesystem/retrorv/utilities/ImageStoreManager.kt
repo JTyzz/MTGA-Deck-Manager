@@ -3,6 +3,7 @@ package com.earthdefensesystem.retrorv.utilities
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import java.io.File
 import java.io.FileInputStream
 
@@ -13,6 +14,7 @@ class ImageStoreManager {
             context.openFileOutput(imageFileName, Context.MODE_PRIVATE).use {fos->
                 bitmapImg.compress(Bitmap.CompressFormat.PNG,25, fos)
             }
+            Log.d("debug", "Saved image to ${context.filesDir.absolutePath}")
             return context.filesDir.absolutePath
         }
 

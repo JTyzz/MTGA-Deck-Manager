@@ -6,17 +6,17 @@ import com.earthdefensesystem.retrorv.model.*
 
 class DeckRepo(private val deckDao: DeckDao) {
 
-    val allLDDecks: LiveData<List<Deck>> = deckDao.getLDDecks()
+    val allLDDecks: LiveData<List<DeckWithCards>> = deckDao.getLDDecks()
     val deckNames: LiveData<List<String>> = deckDao.getNames()
 
     //gets deck object with a list<Cards> by decks id
-    fun getDeckById(deckId: Long): LiveData<DeckWithCards?> {
+    suspend fun getDeckById(deckId: Long): LiveData<DeckWithCards> {
         return deckDao.getDeckWithCardsById(deckId)
     }
 
     //inserts new deck and returns its id
     suspend fun setNewDeck(deck: Deck): Long {
-        return deckDao.setNewDeck(deck)
+        return deckDao.getNewDeckId(deck)
     }
 
     suspend fun insertCardCount(cardCount: CardCount){

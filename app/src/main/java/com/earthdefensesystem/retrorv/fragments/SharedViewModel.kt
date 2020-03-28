@@ -7,11 +7,8 @@ import android.util.Log
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ToggleButton
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
-import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -20,9 +17,6 @@ import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.database.AppDatabase
 import com.earthdefensesystem.retrorv.database.DeckRepo
 import com.earthdefensesystem.retrorv.model.*
-import com.earthdefensesystem.retrorv.network.CardSearchDataSource
-import com.earthdefensesystem.retrorv.network.CardSearchDataSourceFactory
-import com.earthdefensesystem.retrorv.network.SearchRepo
 import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Description
@@ -32,27 +26,18 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
 
-class SharedViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
+class SharedViewModel(application: Application) : AndroidViewModel(application){
     private val dbRepo: DeckRepo
     private val context = application.applicationContext
 
-    private val parentJob = Job()
-    override val coroutineContext: CoroutineContext
-        get() = parentJob + Dispatchers.Default
-    private val scope = CoroutineScope(coroutineContext)
-
     lateinit var mLiveData: LiveData<PagedList<Card>>
-    lateinit var mCurrentDeck : LiveData<DeckWithCards?>
-    var mDeckId = MutableLiveData<Long>()
-    val finDeckId: LiveData<Long> = Transformations.switchMap(mDeckId){
-        deckId -> dbRepo.get
-    }
+    lateinit var mCurrentDeck : LiveData<DeckWithCards>
+
 
     var deckNamesLD: LiveData<List<String>>
     var deckNames: MutableList<String> = mutableListOf()
-    var allLDDecks: LiveData<List<Deck>>
+    var allLDDecks: LiveData<List<DeckWithCards>>
 
     val manaList = mutableListOf<String>()
     val cmcList = mutableListOf<String>()
@@ -69,23 +54,18 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         allLDDecks = dbRepo.allLDDecks
         deckNamesLD = dbRepo.deckNames
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        parentJob.cancel()
-    }
     /* LIST FRAGMENT FUNCTIONS*/
 
-    //Adds deck named New Deck and sets viewmodel DeckId
-    suspend fun newDeck() = viewModelScope.launch {
-        val word = "New Deck"
-        val time = System.currentTimeMillis()
-        val deck = Deck(word, time)
-        val id = dbRepo.setNewDeck(deck)
-        Log.d("debug", "viewmodel deck id $id")
-        checkExistingName(deck)
-        setDeckId(id)
-//        mCurrentDeck = getCardsByDeckId(id)
+    //Adds deck named New Deck and returns DeckWithCards livedata
+    suspend fun insertDeck(name: String) : Long {
+        val deckInput = Deck(name, System.currentTimeMillis())
+        checkExistingName(deckInput)
+        return dbRepo.setNewDeck(deckInput)
+    }
+
+
+    fun setDeck(deckId:Long) = viewModelScope.launch{
+        mCurrentDeck = dbRepo.getDeckById(deckId)
     }
 
     //checks name of deck and increments name by 1 if it exists
@@ -93,9 +73,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         var deckName = deck.name
         var count = 0
         fun checkNames() {
-            if (deckNames.contains(deckName)) {
+            if (deckNamesLD.value!!.contains(deckName)) {
                 count++
-                if (deckNames.contains(deckName.plus(count))) {
+                if (deckNamesLD.value!!.contains(deckName.plus(count))) {
                     checkNames()
                 }
             }
@@ -110,15 +90,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
 
     /* DECK FRAGMENT FUNCTIONS */
 
-    fun getCardsByDeckId(deckId: Long) : LiveData<DeckWithCards?>{
-        return dbRepo.getDeckById(deckId)
-    }
-
-    fun deleteDeckById() {
+    fun deleteDeckById() = viewModelScope.launch {
         if (mCurrentDeck?.value?.cards.isNullOrEmpty()) {
-            scope.launch {
-                dbRepo.deleteDeckById(mDeckId.value!!)
-            }
+                dbRepo.deleteDeckById(mCurrentDeck?.value?.deck?.deckId!!)
         }
     }
 
@@ -147,12 +121,19 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         dbRepo.insertCardCount(newCardCount)
     }
 
-    fun updateDeckBackground(deck: Deck, cardCount: CardCount, imageView: ImageView) =
-        viewModelScope.launch {
+    fun updateDeckBackground(deck: Deck, card: CardCount){
+        runBlocking {
+            val res = async { saveDeckBackground(deck, card) }
+            res.await()
+            dbRepo.updateDeckBackground(deck.deckId!!, card.card.cardId)
+        }
+    }
+
+    private fun saveDeckBackground(deck: Deck, card: CardCount)= viewModelScope.launch {
             Log.d("salami", "${deck.name} updating background")
             Glide.with(context)
                 .asBitmap()
-                .load(cardCount.card.imageUris?.artCrop)
+                .load(card.card.imageUris?.artCrop)
                 .into(object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
@@ -161,28 +142,18 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
                         ImageStoreManager.saveToInternalStorage(
                             context,
                             resource,
-                            cardCount.card.cardId
+                            card.card.cardId
                         )
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {
                     }
                 })
-            dbRepo.updateDeckBackground(deck.deckId!!, cardCount.card.cardId)
         }
 
 
     fun refreshListUI() {
         allLDDecks = dbRepo.allLDDecks
-    }
-
-    fun setDeckId(deckId: Long) {
-        mCurrentDeck = getCardsByDeckId(deckId)
-        this.mDeckId.value = deckId
-    }
-
-    private fun getDeckId(): Long {
-        return mDeckId.value!!
     }
 
     private fun checkDeckColorId(card: Card, deck: Deck): String {
@@ -204,7 +175,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
     }
 
     fun drawChart(chart: BarChart, cardList: List<CardCount>) {
-        getDeckId()
         val cmc1 = maxOf(cardList.count { it.card.cmc == 1 }.toFloat(), 0f)
         val cmc2 = maxOf(cardList.count { it.card.cmc == 2 }.toFloat(), 0f)
         val cmc3 = maxOf(cardList.count { it.card.cmc == 3 }.toFloat(), 0f)
@@ -268,7 +238,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application),
         if (isChecked) {
             if (!manaList.contains(s)) {
                 manaList.add(s)
-
             }
             frame.background =
                 getApplication<Application>().resources.getDrawable(R.drawable.item_selected, null)

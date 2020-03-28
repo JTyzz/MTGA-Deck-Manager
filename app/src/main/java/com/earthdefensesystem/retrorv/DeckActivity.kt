@@ -23,10 +23,6 @@ class DeckActivity : AppCompatActivity(){
         }
         //bind viewmodel to activity to persist between fragments
         val viewModel = ViewModelProvider(this).get(SharedViewModel::class.java)
-
-        viewModel.mDeckId.observe(this, Observer {
-            Log.d("debug", "New deck id $it")
-        })
     }
 
 }

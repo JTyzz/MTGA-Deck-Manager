@@ -13,6 +13,7 @@ import androidx.activity.addCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.*
+import androidx.navigation.fragment.navArgs
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +26,7 @@ import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.network.CardSearchDataSourceFactory
 import com.github.mikephil.charting.charts.BarChart
 import kotlinx.android.synthetic.main.deck_fragment.*
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 
@@ -37,6 +39,8 @@ class DeckFragment : Fragment() {
 
     private lateinit var viewModel: SharedViewModel
     private val searchAdapter = SearchAdapter { card: Card -> cardItemClicked(card) }
+    private val deckAdapter = DeckAdapter { card: CardCount -> deckItemClicked(card) }
+    val args: DeckFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,8 +50,6 @@ class DeckFragment : Fragment() {
             viewModel = ViewModelProvider(it).get((SharedViewModel::class.java))
         }
         val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
-        val deckAdapter =
-            DeckAdapter { cardCount: CardCount -> deckItemClicked(cardCount) }
         val deckRV = view.findViewById<RecyclerView>(R.id.deck_rv)
         val editBtn = view.findViewById<Button>(R.id.edit_deck_btn)
         val filterBtn = view.findViewById<Button>(R.id.filter_btn)
@@ -56,9 +58,7 @@ class DeckFragment : Fragment() {
         deckRV.adapter = deckAdapter
 
         val deckChart = view.findViewById<BarChart>(R.id.mana_chart)
-        Log.d("debug", "${viewModel.mCurrentDeck.value?.deck?.deckId}")
-//        viewModel.getCardsByDeckId(viewModel.mDeckId.value!!)
-
+        viewModel.setDeck(args.deckId)
         viewModel.mCurrentDeck.observe(viewLifecycleOwner, Observer { cards ->
             cards.let {
                 val cardList = it?.cards!!.sortedWith(compareBy { cardCount ->
@@ -69,21 +69,29 @@ class DeckFragment : Fragment() {
                 deckName.text = it.deck.name
             }
         })
+        Log.d("debug", "deckfrgment deck id${viewModel.mCurrentDeck.value?.deck?.deckId}")
 
         editBtn.setOnClickListener {
         }
         filterBtn.setOnClickListener {
             cardFilter()
         }
-//        val callback = requireActivity().onBackPressedDispatcher.addCallback(this){
-//            val navView = requireActivity().findViewById<View>(R.id.nav_host_fragment_container)
-//            val navController = Navigation.findNavController(navView).navigate(R.id.action_deckFragment_to_listFragment)
-//
-//        }
-//        callback.handleOnBackPressed()
         loadUI(view)
         return view
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        deck_rv.adapter = null
+        search_rv.adapter = null
+    }
+//
+//    override fun onStart() {
+//        super.onStart()
+//        viewModel = ViewModelProvider(this).get((SharedViewModel::class.java))
+//        deck_rv.adapter = DeckAdapter { cardCount: CardCount -> deckItemClicked(cardCount) }
+//        deck_rv.layoutManager = LinearLayoutManager(requireContext())
+//    }
 
     private fun deckItemClicked(deck: CardCount) {
         Log.d("salami", "hello ${deck.card.name}")
@@ -98,14 +106,14 @@ class DeckFragment : Fragment() {
 
     private fun initSearch(query: String) {
         search_rv.layoutManager = LinearLayoutManager(requireContext())
-        search_rv.adapter = searchAdapter
+        search_rv.adapter = searchAdapter 
         val config = PagedList.Config.Builder()
             .setPageSize(175)
             .setEnablePlaceholders(false)
             .build()
         viewModel.mLiveData = initPagedListBuilder(config, query).build()
 
-        viewModel.mLiveData.observe(viewLifecycleOwner, Observer<PagedList<Card>> { pagedList ->
+        viewModel.mLiveData.observe(viewLifecycleOwner, Observer{ pagedList ->
             searchAdapter.submitList(pagedList)
         })
     }
@@ -123,6 +131,7 @@ class DeckFragment : Fragment() {
         val et = view.findViewById<EditText>(R.id.card_count_et)
         val closeButton = view.findViewById<Button>(R.id.dc_popup_close_btn)
         val artButton = view.findViewById<Button>(R.id.dc_popup_art_btn)
+        val deckBg = view.findViewById<ImageView>(R.id.deck_background_iv)
 
         // new popupwindow instance
         val popupWindow = PopupWindow(
@@ -142,10 +151,10 @@ class DeckFragment : Fragment() {
         }
 
         artButton.setOnClickListener {
-            val deck = viewModel.mCurrentDeck?.value?.deck
-            Log.d("salami", "${deck?.name} art button clicked")
+            val deck = viewModel.mCurrentDeck.value?.deck!!
+            Log.d("salami", "${deck.name} art button clicked")
             val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background_iv)
-            viewModel.updateDeckBackground(deck!!, cardItem, deckIV)
+            viewModel.updateDeckBackground(deck, cardItem)
             popupWindow.dismiss()
         }
 
@@ -282,7 +291,7 @@ class DeckFragment : Fragment() {
     private fun loadUI(view:View){
         val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
         val background = view.findViewById<View>(R.id.fullscreen_view)
-        var time: Long = Random.nextLong(1000, 2500)
+        val time: Long = Random.nextLong(1000, 2500)
         Handler().postDelayed(
             {
                 progressBar.visibility = View.GONE

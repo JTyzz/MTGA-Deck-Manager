@@ -5,6 +5,7 @@ import androidx.paging.PageKeyedDataSource
 import com.earthdefensesystem.retrorv.model.Base
 import com.earthdefensesystem.retrorv.model.Card
 import kotlinx.coroutines.runBlocking
+import java.lang.Exception
 
 class CardSearchDataSource(
     private val searchQuery: String
@@ -18,7 +19,11 @@ class CardSearchDataSource(
         runBlocking {
             val item = searchRepo.getSearchCards(searchQuery)
             Log.d("debug", "initial load")
-            callback.onResult(item?.cards!!, null, item.nextPage)
+            try {
+                callback.onResult(item?.cards!!, null, item.nextPage)
+            } catch (e: Exception) {
+                Log.d("debug", "exception $e")
+            }
         }
     }
 
