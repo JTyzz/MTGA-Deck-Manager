@@ -91,8 +91,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application){
     /* DECK FRAGMENT FUNCTIONS */
 
     fun deleteDeckById() = viewModelScope.launch {
-        if (mCurrentDeck?.value?.cards.isNullOrEmpty()) {
-                dbRepo.deleteDeckById(mCurrentDeck?.value?.deck?.deckId!!)
+        if (mCurrentDeck.value?.cards.isNullOrEmpty()) {
+                dbRepo.deleteDeckById(mCurrentDeck.value?.deck?.deckId!!)
         }
     }
 
@@ -150,11 +150,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application){
                     }
                 })
         }
-
-
-    fun refreshListUI() {
-        allLDDecks = dbRepo.allLDDecks
-    }
 
     private fun checkDeckColorId(card: Card, deck: Deck): String {
         val cardColor = card.colors

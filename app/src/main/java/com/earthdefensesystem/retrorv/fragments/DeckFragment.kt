@@ -1,5 +1,7 @@
 package com.earthdefensesystem.retrorv.fragments
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -10,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.*
@@ -18,6 +22,9 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Fade
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckAdapter
 import com.earthdefensesystem.retrorv.adapter.SearchAdapter
@@ -50,12 +57,16 @@ class DeckFragment : Fragment() {
             viewModel = ViewModelProvider(it).get((SharedViewModel::class.java))
         }
         val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
+        val parent = view.findViewById<ConstraintLayout>(R.id.deck_fragment)
         val deckRV = view.findViewById<RecyclerView>(R.id.deck_rv)
-        val editBtn = view.findViewById<Button>(R.id.edit_deck_btn)
+        val editBtn = view.findViewById<ToggleButton>(R.id.edit_deck_btn)
+        val searchRV = view.findViewById<RecyclerView>(R.id.search_rv)
         val filterBtn = view.findViewById<Button>(R.id.filter_btn)
         val deckName = view.findViewById<TextView>(R.id.deck_name_tv)
         deckRV.layoutManager = LinearLayoutManager(requireContext())
         deckRV.adapter = deckAdapter
+        searchRV.layoutManager = LinearLayoutManager(requireContext())
+        searchRV.adapter = searchAdapter
 
         val deckChart = view.findViewById<BarChart>(R.id.mana_chart)
         viewModel.setDeck(args.deckId)
@@ -67,12 +78,31 @@ class DeckFragment : Fragment() {
                 deckAdapter.loadCards(cardList)
                 viewModel.drawChart(deckChart, it.cards)
                 deckName.text = it.deck.name
+//                if(it.deck.cIdentity.isNullOrEmpty()){
+//                    initSearch("c:W")
+//                } else {
+//                    initSearch("c:${it.deck.cIdentity}")
+//                }
             }
         })
         Log.d("debug", "deckfrgment deck id${viewModel.mCurrentDeck.value?.deck?.deckId}")
 
-        editBtn.setOnClickListener {
+        val constraintSet1 = ConstraintSet()
+        constraintSet1.clone(parent)
+        constraintSet1.setVisibility(R.id.search_rv, View.VISIBLE)
+        constraintSet1.connect(R.id.deck_rv, ConstraintSet.BOTTOM, R.id.search_rv, ConstraintSet.TOP)
+        val constraintSet2 = ConstraintSet()
+        constraintSet2.clone(parent)
+        constraintSet2.setVisibility(R.id.search_rv, View.GONE)
+        constraintSet2.connect(R.id.deck_rv, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+
+
+        editBtn.setOnCheckedChangeListener { _, isChecked ->
+            TransitionManager.beginDelayedTransition(parent)
+            val constraint = if (isChecked) constraintSet1 else constraintSet2
+            constraint.applyTo(parent)
         }
+
         filterBtn.setOnClickListener {
             cardFilter()
         }
@@ -83,7 +113,6 @@ class DeckFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         deck_rv.adapter = null
-        search_rv.adapter = null
     }
 //
 //    override fun onStart() {
@@ -105,8 +134,6 @@ class DeckFragment : Fragment() {
     }
 
     private fun initSearch(query: String) {
-        search_rv.layoutManager = LinearLayoutManager(requireContext())
-        search_rv.adapter = searchAdapter 
         val config = PagedList.Config.Builder()
             .setPageSize(175)
             .setEnablePlaceholders(false)
@@ -203,6 +230,7 @@ class DeckFragment : Fragment() {
         val landBtn = view.findViewById<ToggleButton>(R.id.land_btn)
         val commanderBtn = view.findViewById<ToggleButton>(R.id.commander_btn)
         val checkBtn = view.findViewById<Button>(R.id.check_btn)
+
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
             LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
@@ -278,6 +306,12 @@ class DeckFragment : Fragment() {
             val query = "${viewModel.manaString}+${viewModel.cmcString}+${viewModel.typeString}+f:standard"
             Log.d("debug", query)
             initSearch(query)
+//            viewModel.typeList.clear()
+//            viewModel.manaList.clear()
+//            viewModel.cmcList.clear()
+            viewModel.manaString = ""
+            viewModel.typeString = ""
+            viewModel.cmcString = ""
         }
 
         // dismiss listener

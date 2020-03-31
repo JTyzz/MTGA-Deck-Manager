@@ -14,7 +14,8 @@
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/search_rv"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/deck_details_layout"
@@ -58,6 +59,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
+        android:id="@+id/fade_gradient"
         android:layout_width="0dp"
         android:layout_height="15dp"
         android:background="@drawable/blacktransparent_gradient"
@@ -67,8 +69,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_rv"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/horizontal_guideline"
@@ -88,13 +91,14 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.70" />
 
-    <Button
+    <ToggleButton
         android:id="@+id/edit_deck_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_button_outline"
         android:textColor="@color/rose"
-        android:text="Edit Deck"
+        android:textOn="Edit Deck"
+        android:textOff="Edit Deck"
         android:stateListAnimator="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
