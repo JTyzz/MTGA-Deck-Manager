@@ -50,7 +50,20 @@ interface DeckDao {
     @Delete
     fun deleteDeck(vararg deck: Deck)
 
-    @Query("DELETE FROM deck_table where deck_id = :deckId")
+    @Transaction
+    suspend fun deleteCard(cardId: String){
+        deleteCardCount(cardId)
+        deleteCardJunction(cardId)
+    }
+
+
+    @Query("DELETE FROM cc_table WHERE cc_id = :cardId")
+    suspend fun deleteCardCount(cardId: String)
+
+    @Query("DELETE FROM DeckCardJoin WHERE cc_id = :cardId")
+    suspend fun deleteCardJunction(cardId: String)
+
+    @Query("DELETE FROM deck_table WHERE deck_id = :deckId")
     suspend fun deleteDeckById(deckId: Long)
 
     @Query("DELETE FROM deck_table")

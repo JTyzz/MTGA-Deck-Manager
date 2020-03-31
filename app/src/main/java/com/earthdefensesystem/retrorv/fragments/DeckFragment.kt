@@ -2,6 +2,7 @@ package com.earthdefensesystem.retrorv.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.app.Application
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -14,6 +15,7 @@ import android.widget.*
 import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.*
@@ -25,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
 import com.earthdefensesystem.retrorv.adapter.DeckAdapter
 import com.earthdefensesystem.retrorv.adapter.SearchAdapter
@@ -60,6 +63,7 @@ class DeckFragment : Fragment() {
         val parent = view.findViewById<ConstraintLayout>(R.id.deck_fragment)
         val deckRV = view.findViewById<RecyclerView>(R.id.deck_rv)
         val editBtn = view.findViewById<ToggleButton>(R.id.edit_deck_btn)
+        val addCardsBtn = view.findViewById<ToggleButton>(R.id.addcards_btn)
         val searchRV = view.findViewById<RecyclerView>(R.id.search_rv)
         val filterBtn = view.findViewById<Button>(R.id.filter_btn)
         val deckName = view.findViewById<TextView>(R.id.deck_name_tv)
@@ -78,11 +82,6 @@ class DeckFragment : Fragment() {
                 deckAdapter.loadCards(cardList)
                 viewModel.drawChart(deckChart, it.cards)
                 deckName.text = it.deck.name
-//                if(it.deck.cIdentity.isNullOrEmpty()){
-//                    initSearch("c:W")
-//                } else {
-//                    initSearch("c:${it.deck.cIdentity}")
-//                }
             }
         })
         Log.d("debug", "deckfrgment deck id${viewModel.mCurrentDeck.value?.deck?.deckId}")
@@ -90,17 +89,34 @@ class DeckFragment : Fragment() {
         val constraintSet1 = ConstraintSet()
         constraintSet1.clone(parent)
         constraintSet1.setVisibility(R.id.search_rv, View.VISIBLE)
-        constraintSet1.connect(R.id.deck_rv, ConstraintSet.BOTTOM, R.id.search_rv, ConstraintSet.TOP)
+        constraintSet1.connect(
+            R.id.deck_rv,
+            ConstraintSet.BOTTOM,
+            R.id.search_rv,
+            ConstraintSet.TOP
+        )
         val constraintSet2 = ConstraintSet()
         constraintSet2.clone(parent)
         constraintSet2.setVisibility(R.id.search_rv, View.GONE)
-        constraintSet2.connect(R.id.deck_rv, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        constraintSet2.connect(
+            R.id.deck_rv,
+            ConstraintSet.BOTTOM,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM
+        )
 
 
-        editBtn.setOnCheckedChangeListener { _, isChecked ->
+        addCardsBtn.setOnCheckedChangeListener { v, isChecked ->
             TransitionManager.beginDelayedTransition(parent)
-            val constraint = if (isChecked) constraintSet1 else constraintSet2
-            constraint.applyTo(parent)
+            if (isChecked) {
+                constraintSet1.applyTo(parent)
+                v.background = requireActivity().getDrawable(R.drawable.btn_selected)
+                v.setTextColor(ContextCompat.getColor(requireActivity(), R.color.bar))
+            } else if (!isChecked) {
+                constraintSet2.applyTo(parent)
+                v.background = requireActivity().getDrawable(R.drawable.btn_unselected)
+                v.setTextColor(ContextCompat.getColor(requireActivity(), R.color.rose))
+            }
         }
 
         filterBtn.setOnClickListener {
@@ -113,24 +129,16 @@ class DeckFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         deck_rv.adapter = null
-    }
-//
-//    override fun onStart() {
-//        super.onStart()
-//        viewModel = ViewModelProvider(this).get((SharedViewModel::class.java))
-//        deck_rv.adapter = DeckAdapter { cardCount: CardCount -> deckItemClicked(cardCount) }
-//        deck_rv.layoutManager = LinearLayoutManager(requireContext())
-//    }
-
-    private fun deckItemClicked(deck: CardCount) {
-        Log.d("salami", "hello ${deck.card.name}")
-        makeAlertDialog(deck)
+        search_rv.adapter = null
     }
 
-    private fun cardItemClicked(cardItem: Card) {
-        runBlocking {
-            viewModel.insertCardtoDeck(cardItem, 4)
-        }
+
+    private fun deckItemClicked(item: CardCount) {
+        cardAdd(item.card)
+    }
+
+    private fun cardItemClicked(item: Card) {
+        cardAdd(item)
     }
 
     private fun initSearch(query: String) {
@@ -140,7 +148,7 @@ class DeckFragment : Fragment() {
             .build()
         viewModel.mLiveData = initPagedListBuilder(config, query).build()
 
-        viewModel.mLiveData.observe(viewLifecycleOwner, Observer{ pagedList ->
+        viewModel.mLiveData.observe(viewLifecycleOwner, Observer { pagedList ->
             searchAdapter.submitList(pagedList)
         })
     }
@@ -229,7 +237,10 @@ class DeckFragment : Fragment() {
         val artifactBtn = view.findViewById<ToggleButton>(R.id.artifact_btn)
         val landBtn = view.findViewById<ToggleButton>(R.id.land_btn)
         val commanderBtn = view.findViewById<ToggleButton>(R.id.commander_btn)
-        val checkBtn = view.findViewById<Button>(R.id.check_btn)
+        val groupButtonsToggle = arrayOf(
+            oneBtn, twoBtn, threeBtn, fourBtn,
+            fiveBtn, sixBtn
+        )
 
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
@@ -256,73 +267,172 @@ class DeckFragment : Fragment() {
         cBtn.setOnCheckedChangeListener { _, isChecked ->
             viewModel.manaString = viewModel.filterMana(isChecked, viewModel.manaList, "C", cFrame)
         }
-        oneBtn.setOnCheckedChangeListener { _, isChecked ->
+        oneBtn.setOnCheckedChangeListener { v, isChecked ->
+            if (isChecked) groupButtonsToggle.forEach { if (it != v) it.isChecked = false }
             viewModel.cmcString = viewModel.filterCMC(isChecked, viewModel.cmcList, 1, oneFrame)
         }
-        twoBtn.setOnCheckedChangeListener { _, isChecked ->
+        twoBtn.setOnCheckedChangeListener { v, isChecked ->
+            if (isChecked) groupButtonsToggle.forEach { if (it != v) it.isChecked = false }
             viewModel.cmcString = viewModel.filterCMC(isChecked, viewModel.cmcList, 2, twoFrame)
         }
-        threeBtn.setOnCheckedChangeListener { _, isChecked ->
+        threeBtn.setOnCheckedChangeListener { v, isChecked ->
+            if (isChecked) groupButtonsToggle.forEach { if (it != v) it.isChecked = false }
             viewModel.cmcString = viewModel.filterCMC(isChecked, viewModel.cmcList, 3, threeFrame)
         }
-        fourBtn.setOnCheckedChangeListener { _, isChecked ->
+        fourBtn.setOnCheckedChangeListener { v, isChecked ->
+            if (isChecked) groupButtonsToggle.forEach { if (it != v) it.isChecked = false }
             viewModel.cmcString = viewModel.filterCMC(isChecked, viewModel.cmcList, 4, fourFrame)
         }
-        fiveBtn.setOnCheckedChangeListener { _, isChecked ->
+        fiveBtn.setOnCheckedChangeListener { v, isChecked ->
+            if (isChecked) groupButtonsToggle.forEach { if (it != v) it.isChecked = false }
             viewModel.cmcString = viewModel.filterCMC(isChecked, viewModel.cmcList, 5, fiveFrame)
         }
-        sixBtn.setOnCheckedChangeListener { _, isChecked ->
+        sixBtn.setOnCheckedChangeListener { v, isChecked ->
+            if (isChecked) groupButtonsToggle.forEach { if (it != v) it.isChecked = false }
             viewModel.cmcString = viewModel.filterCMC(isChecked, viewModel.cmcList, 6, sixFrame)
         }
         creatureBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "creature", creatureBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "creature", creatureBtn)
         }
         planeswalkerBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "planeswalker", planeswalkerBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "planeswalker", planeswalkerBtn)
         }
         instantBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "instant", instantBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "instant", instantBtn)
         }
 
         sorceryBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "sorcery", sorceryBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "sorcery", sorceryBtn)
         }
         enchantmentBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "enchantment", enchantmentBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "enchantment", enchantmentBtn)
         }
 
         artifactBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "artifact", artifactBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "artifact", artifactBtn)
         }
         landBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "land", landBtn)
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "land", landBtn)
         }
 
         commanderBtn.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.typeString = viewModel.filterType(isChecked, viewModel.typeList, "commander", commanderBtn)
-        }
-
-        checkBtn.setOnClickListener {
-            val query = "${viewModel.manaString}+${viewModel.cmcString}+${viewModel.typeString}+f:standard"
-            Log.d("debug", query)
-            initSearch(query)
-//            viewModel.typeList.clear()
-//            viewModel.manaList.clear()
-//            viewModel.cmcList.clear()
-            viewModel.manaString = ""
-            viewModel.typeString = ""
-            viewModel.cmcString = ""
+            viewModel.typeString =
+                viewModel.filterType(isChecked, viewModel.typeList, "commander", commanderBtn)
         }
 
         // dismiss listener
         popupWindow.setOnDismissListener {
-            //            listAdapter.notifyDataSetChanged()
+            val query =
+                "${viewModel.manaString}+${viewModel.cmcString}+${viewModel.typeString}+f:standard"
+            Log.d("debug", query)
+            initSearch(query)
+            viewModel.typeList.clear()
+            viewModel.manaList.clear()
+            viewModel.cmcList.clear()
+            viewModel.manaString = ""
+            viewModel.typeString = ""
+            viewModel.cmcString = ""
         }
         //show popop window
         popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
     }
 
-    private fun loadUI(view:View){
+    private fun cardAdd(card: Card) {
+        val view by lazy { LayoutInflater.from(activity).inflate(R.layout.add_card_popup, null) }
+        val addBtn = view.findViewById<ImageView>(R.id.ac_increase_btn)
+        val cardIV = view.findViewById<ImageView>(R.id.add_card_iv)
+        val minusBtn = view.findViewById<ImageView>(R.id.ac_minus_btn)
+        val oneIV = view.findViewById<ImageView>(R.id.counter_one_iv)
+        val twoIV = view.findViewById<ImageView>(R.id.counter_two_iv)
+        val threeIV = view.findViewById<ImageView>(R.id.counter_three_iv)
+        val fourIV = view.findViewById<ImageView>(R.id.counter_four_iv)
+        var cCount = 0
+
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        Glide.with(requireContext()).load(card.imageUris?.normal).into(cardIV)
+        viewModel.mCurrentDeck.observe(viewLifecycleOwner, Observer {
+            if (it.cards.isNullOrEmpty()) {
+            } else {
+                for (item in it.cards) {
+                    if (item.id == card.cardId) {
+                        cCount = item.count
+                        when (item.count) {
+                            1 -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                            2 -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                            3 ->{
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                            4 ->{
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                            }
+                            else ->{
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        addBtn.setOnClickListener {
+            if (cCount in 0..3){
+                cCount++
+                runBlocking {
+                    viewModel.insertCardtoDeck(card, cCount)
+                }
+            }
+        }
+        minusBtn.setOnClickListener {
+            if (cCount in 1..4){
+                cCount--
+                Log.d("debug", "$cCount cardcount")
+                runBlocking {
+                    if (cCount == 0){
+                        viewModel.deleteCard(card.cardId)
+                    } else{
+                        viewModel.insertCardtoDeck(card, cCount)
+                    }
+
+                }
+            }
+        }
+        popupWindow.setOnDismissListener {
+        }
+        popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
+    }
+
+    private fun loadUI(view: View) {
         val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
         val background = view.findViewById<View>(R.id.fullscreen_view)
         val time: Long = Random.nextLong(1000, 2500)
@@ -333,6 +443,11 @@ class DeckFragment : Fragment() {
             },
             time
         )
+        if (viewModel.mCurrentDeck.value?.deck?.cIdentity.isNullOrEmpty()) {
+            initSearch("c:W")
+        } else {
+            initSearch("c:${viewModel.mCurrentDeck.value?.deck!!.cIdentity}")
+        }
 
     }
 }

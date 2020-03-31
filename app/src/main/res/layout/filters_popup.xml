@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Advanced Filters"
-        android:textColor="@color/middark"
+        android:textColor="@color/rose"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -402,11 +402,4 @@
             app:layout_constraintStart_toEndOf="@id/land_btn"
             app:layout_constraintTop_toBottomOf="@id/artifact_btn"/>
 
-    <Button
-        android:id="@+id/check_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Check!"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/land_btn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -112,6 +112,10 @@ class SharedViewModel(application: Application) : AndroidViewModel(application){
         }
     }
 
+    fun deleteCard(cardId: String) = viewModelScope.launch {
+        dbRepo.deleteCard(cardId)
+    }
+
     private fun updateDeckColorId(deckId: Long, colorId: String) = viewModelScope.launch {
         dbRepo.updateDeckColorId(deckId, colorId)
     }
@@ -284,7 +288,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application){
                 )
             }
         }
-        return cmcList.joinToString("+OR+")
+        return cmcList.joinToString("")
     }
 
     fun filterType(

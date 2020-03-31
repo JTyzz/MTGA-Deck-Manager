@@ -22,7 +22,7 @@ class CardSearchDataSource(
             try {
                 callback.onResult(item?.cards!!, null, item.nextPage)
             } catch (e: Exception) {
-                Log.d("debug", "exception $e")
+                Log.d("debug", "load initial exception $e")
             }
         }
     }
