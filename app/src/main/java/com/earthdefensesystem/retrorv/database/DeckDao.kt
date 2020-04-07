@@ -41,6 +41,9 @@ interface DeckDao {
     @Query("UPDATE deck_table SET cIdentity = :colors WHERE deck_id = :deckId")
     suspend fun updateDeckColorIdentity(deckId: Long, colors: String)
 
+    @Query("UPDATE deck_table SET name = :name WHERE deck_id = :deckId")
+    suspend fun updateDeckName(deckId: Long, name: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCardCount(cardCount: CardCount)
 

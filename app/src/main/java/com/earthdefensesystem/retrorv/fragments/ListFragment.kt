@@ -58,6 +58,7 @@ class ListFragment : Fragment() {
         viewModel.allLDDecks.observe(viewLifecycleOwner, Observer { decks ->
             decks?.let { listAdapter.loadDecks(it) }
         })
+
         viewModel.deckNamesLD.observe(viewLifecycleOwner, Observer {
             viewModel.deckNames = it.toMutableList()
         })

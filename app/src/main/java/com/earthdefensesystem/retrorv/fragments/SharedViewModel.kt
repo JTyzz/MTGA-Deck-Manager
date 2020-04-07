@@ -133,6 +133,12 @@ class SharedViewModel(application: Application) : AndroidViewModel(application){
         }
     }
 
+    fun updateDeckName(deck: Deck, name: String){
+        runBlocking {
+            dbRepo.updateDeckName(deck.deckId!!, name)
+        }
+    }
+
     private fun saveDeckBackground(deck: Deck, card: CardCount)= viewModelScope.launch {
             Log.d("salami", "${deck.name} updating background")
             Glide.with(context)

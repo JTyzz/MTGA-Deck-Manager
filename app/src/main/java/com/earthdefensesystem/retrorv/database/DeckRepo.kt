@@ -35,6 +35,10 @@ class DeckRepo(private val deckDao: DeckDao) {
         deckDao.updateDeckColorIdentity(deckId, colorId)
     }
 
+    suspend fun updateDeckName(deckId: Long, name: String){
+        deckDao.updateDeckName(deckId, name)
+    }
+
     suspend fun deleteCard(cardId: String) = deckDao.deleteCard(cardId)
 
     fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)

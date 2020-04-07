@@ -7,73 +7,86 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/popup_background">
 
-    <ImageView
-        android:id="@+id/add_card_iv"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/add_card_cl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="@drawable/transparent_rounded_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="15dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+    <ImageView
+        android:id="@+id/add_card_iv"
+        android:layout_width="290dp"
+        android:layout_height="400dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
         android:src="@drawable/card"
-        android:layout_width="300dp"
-        android:layout_height="400dp"/>
+        android:background="@drawable/rounded_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ImageView
         android:id="@+id/ac_minus_btn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/ic_arrow_back"
+        android:layout_marginTop="5dp"
         android:elevation="10dp"
-        app:layout_constraintTop_toBottomOf="@id/add_card_iv"
-        app:layout_constraintStart_toStartOf="@id/add_card_iv"
+        app:layout_constraintTop_toBottomOf="@id/add_card_cl"
+        app:layout_constraintStart_toStartOf="@id/add_card_cl"
         />
     <ImageView
         android:id="@+id/counter_one_iv"
         android:src="@drawable/counter_off"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="8dp"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        app:layout_constraintTop_toBottomOf="@id/add_card_iv"
+        app:layout_constraintTop_toBottomOf="@id/add_card_cl"
         app:layout_constraintStart_toEndOf="@id/ac_minus_btn"
+        app:layout_constraintEnd_toStartOf="@id/counter_two_iv"
         />
     <ImageView
         android:id="@+id/counter_two_iv"
         android:src="@drawable/counter_off"
-        android:layout_marginStart="8dp"
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:layout_constraintTop_toTopOf="@id/counter_one_iv"
         app:layout_constraintStart_toEndOf="@id/counter_one_iv"
+        app:layout_constraintEnd_toStartOf="@id/counter_three_iv"
         />
     <ImageView
         android:id="@+id/counter_three_iv"
         android:src="@drawable/counter_off"
-        android:layout_marginStart="8dp"
-
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:layout_constraintTop_toTopOf="@id/counter_one_iv"
         app:layout_constraintStart_toEndOf="@id/counter_two_iv"
+        app:layout_constraintEnd_toStartOf="@id/counter_four_iv"
         />
     <ImageView
         android:id="@+id/counter_four_iv"
         android:src="@drawable/counter_off"
-        android:layout_marginStart="8dp"
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:layout_constraintTop_toTopOf="@id/counter_one_iv"
         app:layout_constraintStart_toEndOf="@id/counter_three_iv"
+        app:layout_constraintEnd_toStartOf="@id/ac_increase_btn"
         />
+
     <ImageView
         android:id="@+id/ac_increase_btn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/ic_arrow_forward"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="5dp"
         android:elevation="10dp"
-        app:layout_constraintTop_toBottomOf="@id/add_card_iv"
-        app:layout_constraintStart_toEndOf="@id/counter_four_iv"
-        />
+        android:src="@drawable/ic_arrow_forward"
+        app:layout_constraintEnd_toEndOf="@+id/add_card_cl"
+        app:layout_constraintTop_toBottomOf="@id/add_card_cl" />
 
 
 

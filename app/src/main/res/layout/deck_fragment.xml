@@ -12,38 +12,67 @@
         android:id="@+id/deck_rv"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/search_rv"
         app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/search_rv"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/deck_details_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/vertical_guideline"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/rose"
+            android:textAlignment="center"
+            android:text="Click on a card to apply a deck background."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/deck_name_tv"
+            />
 
         <ImageView
             android:id="@+id/deck_background_iv"
             android:layout_width="0dp"
             android:layout_height="100dp"
-            android:src="@color/dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/deck_name_tv" />
+
+
 
         <TextView
             android:id="@+id/deck_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Deck Name"
             android:textColor="@color/rose"
             android:textSize="18sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/deck_background_iv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/deck_name_et"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:defaultFocusHighlightEnabled="true"
+            android:imeOptions="actionDone"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="@color/rose"
+            android:textColorHint="@color/rose"
+            android:textSize="18sp"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/deck_background_iv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,33 +85,72 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/deck_background_iv" />
+
+        <ToggleButton
+            android:id="@+id/addcards_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="18dp"
+            android:background="@drawable/rounded_button_outline"
+            android:stateListAnimator="@null"
+            android:textColor="@color/rose"
+            android:textOff="Add Cards"
+            android:textOn="Add Cards"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mana_chart" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <View
-        android:id="@+id/fade_gradient"
-        android:layout_width="0dp"
-        android:layout_height="15dp"
-        android:background="@drawable/blacktransparent_gradient"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_rv"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/vertical_guideline"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/horizontal_guideline"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/deck_details_layout" />
+
+    <Button
+        android:id="@+id/filter_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_outline"
+        android:stateListAnimator="@null"
+        android:text="Filters"
+        android:textColor="@color/rose"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/horizontal_guideline" />
+
+    <View
+        android:id="@+id/fullscreen_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/opaque"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/fullscreen_view"
+        app:layout_constraintEnd_toEndOf="@id/fullscreen_view"
+        app:layout_constraintStart_toStartOf="@id/fullscreen_view"
+        app:layout_constraintTop_toTopOf="@id/fullscreen_view" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.44" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/vertical_guideline"
@@ -91,61 +159,33 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.70" />
 
-    <ToggleButton
-        android:id="@+id/edit_deck_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_outline"
-        android:textColor="@color/rose"
-        android:textOn="Edit Deck"
-        android:textOff="Edit Deck"
-        android:stateListAnimator="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
-        app:layout_constraintTop_toBottomOf="@+id/deck_details_layout" />
-
-    <Button
-        android:id="@+id/filter_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_outline"
-        android:textColor="@color/rose"
-        android:text="Filters"
-        android:stateListAnimator="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
-        app:layout_constraintTop_toBottomOf="@+id/edit_deck_btn" />
-    <ToggleButton
-        android:id="@+id/addcards_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_outline"
-        android:textColor="@color/rose"
-        android:textOn="Add Cards"
-        android:textOff="Add Cards"
-        android:stateListAnimator="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/vertical_guideline"
-        app:layout_constraintTop_toBottomOf="@+id/filter_btn" />
     <View
-        android:id="@+id/fullscreen_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        android:background="@color/opaque"
-        />
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/fullscreen_view"
-        app:layout_constraintBottom_toBottomOf="@id/fullscreen_view"
-        app:layout_constraintStart_toStartOf="@id/fullscreen_view"
-        app:layout_constraintEnd_toEndOf="@id/fullscreen_view"
-        />
+        android:id="@+id/fade_gradient"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:background="@drawable/blacktransparent_gradient"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/search_rv"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/details_fade_gradient_left"
+        android:layout_width="12dp"
+        android:layout_height="0dp"
+        android:background="@drawable/blacktransparent_gradient_left"
+        app:layout_constraintBottom_toBottomOf="@id/deck_details_layout"
+        app:layout_constraintEnd_toStartOf="@id/deck_details_layout"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/details_fade_gradient_down"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/blacktransparent_gradient_down"
+        app:layout_constraintStart_toStartOf="@id/details_fade_gradient_left"
+        app:layout_constraintEnd_toEndOf="@id/deck_details_layout"
+        app:layout_constraintTop_toBottomOf="@id/deck_details_layout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

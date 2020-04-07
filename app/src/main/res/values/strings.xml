@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RetroRV</string>
+    <string name="app_name">Vantress</string>
 
     <string-array name="magic_colors">
         <item>White</item>
@@ -8,8 +8,6 @@
         <item>Blue</item>
         <item>Green</item>
     </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_deck">Add Deck</string>
     <string name="planeswalker">Planeswalker</string>

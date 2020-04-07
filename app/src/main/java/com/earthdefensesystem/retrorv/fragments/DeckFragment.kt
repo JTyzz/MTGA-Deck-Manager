@@ -1,31 +1,26 @@
 package com.earthdefensesystem.retrorv.fragments
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.app.Application
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
 import android.util.Log
-import android.view.Gravity
+import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.*
 import androidx.navigation.fragment.navArgs
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.Fade
-import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import com.bumptech.glide.Glide
 import com.earthdefensesystem.retrorv.R
@@ -34,9 +29,9 @@ import com.earthdefensesystem.retrorv.adapter.SearchAdapter
 import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.network.CardSearchDataSourceFactory
+import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
 import kotlinx.android.synthetic.main.deck_fragment.*
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 
@@ -50,7 +45,7 @@ class DeckFragment : Fragment() {
     private lateinit var viewModel: SharedViewModel
     private val searchAdapter = SearchAdapter { card: Card -> cardItemClicked(card) }
     private val deckAdapter = DeckAdapter { card: CardCount -> deckItemClicked(card) }
-    val args: DeckFragmentArgs by navArgs()
+    private val args: DeckFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,15 +57,18 @@ class DeckFragment : Fragment() {
         val view: View = inflater.inflate(R.layout.deck_fragment, container, false)
         val parent = view.findViewById<ConstraintLayout>(R.id.deck_fragment)
         val deckRV = view.findViewById<RecyclerView>(R.id.deck_rv)
-        val editBtn = view.findViewById<ToggleButton>(R.id.edit_deck_btn)
         val addCardsBtn = view.findViewById<ToggleButton>(R.id.addcards_btn)
         val searchRV = view.findViewById<RecyclerView>(R.id.search_rv)
         val filterBtn = view.findViewById<Button>(R.id.filter_btn)
         val deckName = view.findViewById<TextView>(R.id.deck_name_tv)
+        val editDeckName = view.findViewById<EditText>(R.id.deck_name_et)
+        val deckBackground = view.findViewById<ImageView>(R.id.deck_background_iv)
+
         deckRV.layoutManager = LinearLayoutManager(requireContext())
         deckRV.adapter = deckAdapter
-        searchRV.layoutManager = LinearLayoutManager(requireContext())
+        searchRV.layoutManager = GridLayoutManager(requireContext(), 2)
         searchRV.adapter = searchAdapter
+
 
         val deckChart = view.findViewById<BarChart>(R.id.mana_chart)
         viewModel.setDeck(args.deckId)
@@ -82,9 +80,46 @@ class DeckFragment : Fragment() {
                 deckAdapter.loadCards(cardList)
                 viewModel.drawChart(deckChart, it.cards)
                 deckName.text = it.deck.name
+                editDeckName.hint = it.deck.name
+                    try {
+                        val bitmap = ImageStoreManager
+                            .getImageFromInternalStorage(requireContext(), it.deck.uri!!)
+                        Glide.with(requireContext())
+                            .load(bitmap)
+                            .into(deckBackground)
+                    } catch (e: Exception){
+                        Log.d("debug", "listadapter $e")
+                    }
             }
         })
-        Log.d("debug", "deckfrgment deck id${viewModel.mCurrentDeck.value?.deck?.deckId}")
+
+        deckName.setOnClickListener {
+            deckName.visibility = View.INVISIBLE
+            editDeckName.visibility = View.VISIBLE
+            editDeckName.requestFocus()
+            editDeckName.isFocusableInTouchMode
+
+        }
+
+        editDeckName.setOnEditorActionListener { _, actionId, event ->
+            if ((event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER ||
+                        event.keyCode == KeyEvent.KEYCODE_BACK)) ||
+                (actionId == EditorInfo.IME_ACTION_DONE)
+            ) {
+                viewModel.updateDeckName(
+                    viewModel.mCurrentDeck.value?.deck!!,
+                    editDeckName.text.toString()
+                )
+                Handler().postDelayed(
+                    {
+                        editDeckName.visibility = View.INVISIBLE
+                        deckName.visibility = View.VISIBLE
+                    }, 1000
+                )
+                true
+            }
+            false
+        }
 
         val constraintSet1 = ConstraintSet()
         constraintSet1.clone(parent)
@@ -104,7 +139,6 @@ class DeckFragment : Fragment() {
             ConstraintSet.PARENT_ID,
             ConstraintSet.BOTTOM
         )
-
 
         addCardsBtn.setOnCheckedChangeListener { v, isChecked ->
             TransitionManager.beginDelayedTransition(parent)
@@ -126,6 +160,7 @@ class DeckFragment : Fragment() {
         return view
     }
 
+    //sets adapter to null to avoid memory leak
     override fun onDestroyView() {
         super.onDestroyView()
         deck_rv.adapter = null
@@ -134,13 +169,14 @@ class DeckFragment : Fragment() {
 
 
     private fun deckItemClicked(item: CardCount) {
-        cardAdd(item.card)
+        cardEdit(item)
     }
 
     private fun cardItemClicked(item: Card) {
         cardAdd(item)
     }
 
+    //Paginated search
     private fun initSearch(query: String) {
         val config = PagedList.Config.Builder()
             .setPageSize(175)
@@ -153,53 +189,12 @@ class DeckFragment : Fragment() {
         })
     }
 
+    //
     private fun initPagedListBuilder(
         config: PagedList.Config,
         query: String
     ): LivePagedListBuilder<String, Card> {
         return LivePagedListBuilder(CardSearchDataSourceFactory(query), config)
-    }
-
-    private fun makeAlertDialog(cardItem: CardCount) {
-        // inflate popup view
-        val view = LayoutInflater.from(activity).inflate(R.layout.deck_card_popup, null)
-        val et = view.findViewById<EditText>(R.id.card_count_et)
-        val closeButton = view.findViewById<Button>(R.id.dc_popup_close_btn)
-        val artButton = view.findViewById<Button>(R.id.dc_popup_art_btn)
-        val deckBg = view.findViewById<ImageView>(R.id.deck_background_iv)
-
-        // new popupwindow instance
-        val popupWindow = PopupWindow(
-            view, // Custom view to show in popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            true // Window height
-        )
-        //onclick listener
-        closeButton.setOnClickListener {
-            val editText = et.text.toString()
-            val number = editText.toInt()
-            if (editText.isNotEmpty()) {
-                viewModel.updateCardCount(cardItem, number)
-            }
-            popupWindow.dismiss()
-        }
-
-        artButton.setOnClickListener {
-            val deck = viewModel.mCurrentDeck.value?.deck!!
-            Log.d("salami", "${deck.name} art button clicked")
-            val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background_iv)
-            viewModel.updateDeckBackground(deck, cardItem)
-            popupWindow.dismiss()
-        }
-
-        // dismiss listener
-        popupWindow.setOnDismissListener {
-            //            listAdapter.notifyDataSetChanged()
-        }
-        //show popop window
-        popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
-
     }
 
     private fun cardFilter() {
@@ -355,14 +350,16 @@ class DeckFragment : Fragment() {
         val fourIV = view.findViewById<ImageView>(R.id.counter_four_iv)
         var cCount = 0
 
-
         val popupWindow = PopupWindow(
             view, // Custom view to show in popup window
             LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
             LinearLayout.LayoutParams.WRAP_CONTENT,
             true
         )
+
         Glide.with(requireContext()).load(card.imageUris?.normal).into(cardIV)
+        cardIV.clipToOutline = true
+
         viewModel.mCurrentDeck.observe(viewLifecycleOwner, Observer {
             if (it.cards.isNullOrEmpty()) {
             } else {
@@ -382,19 +379,19 @@ class DeckFragment : Fragment() {
                                 threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
                                 fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
                             }
-                            3 ->{
+                            3 -> {
                                 oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                                 twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                                 threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                                 fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
                             }
-                            4 ->{
+                            4 -> {
                                 oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                                 twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                                 threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                                 fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
                             }
-                            else ->{
+                            else -> {
                                 oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
                                 twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
                                 threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
@@ -405,28 +402,130 @@ class DeckFragment : Fragment() {
                 }
             }
         })
+
         addBtn.setOnClickListener {
-            if (cCount in 0..3){
+            if (cCount in 0..3) {
                 cCount++
                 runBlocking {
                     viewModel.insertCardtoDeck(card, cCount)
                 }
             }
         }
+
         minusBtn.setOnClickListener {
-            if (cCount in 1..4){
+            if (cCount in 1..4) {
                 cCount--
                 Log.d("debug", "$cCount cardcount")
                 runBlocking {
-                    if (cCount == 0){
+                    if (cCount == 0) {
                         viewModel.deleteCard(card.cardId)
-                    } else{
+                    } else {
                         viewModel.insertCardtoDeck(card, cCount)
                     }
 
                 }
             }
         }
+        popupWindow.setOnDismissListener {
+        }
+        popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
+    }
+
+    private fun cardEdit(card: CardCount) {
+        val view by lazy { LayoutInflater.from(activity).inflate(R.layout.edit_card_popup, null) }
+        val addBtn = view.findViewById<ImageView>(R.id.ec_increase_btn)
+        val cardIV = view.findViewById<ImageView>(R.id.edit_card_iv)
+        val minusBtn = view.findViewById<ImageView>(R.id.ec_minus_btn)
+        val oneIV = view.findViewById<ImageView>(R.id.ec_counter_one_iv)
+        val twoIV = view.findViewById<ImageView>(R.id.ec_counter_two_iv)
+        val threeIV = view.findViewById<ImageView>(R.id.ec_counter_three_iv)
+        val fourIV = view.findViewById<ImageView>(R.id.ec_counter_four_iv)
+        val backgroundBtn = view.findViewById<Button>(R.id.background_btn)
+        var cCount = 0
+
+        val popupWindow = PopupWindow(
+            view, // Custom view to show in popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        Glide.with(requireContext()).load(card.card.imageUris?.normal).into(cardIV)
+        cardIV.clipToOutline = true
+
+        viewModel.mCurrentDeck.observe(viewLifecycleOwner, Observer {
+            if (it.cards.isNullOrEmpty()) {
+            } else {
+                for (item in it.cards) {
+                    if (item.id == card.card.cardId) {
+                        cCount = item.count
+                        when (item.count) {
+                            1 -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                            2 -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                            3 -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                            4 -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_on))
+                            }
+                            else -> {
+                                oneIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                twoIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                threeIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                                fourIV.setImageDrawable(requireActivity().getDrawable(R.drawable.counter_off))
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        addBtn.setOnClickListener {
+            if (cCount in 0..3) {
+                cCount++
+                runBlocking {
+                    viewModel.insertCardtoDeck(card.card, cCount)
+                }
+            }
+        }
+
+        minusBtn.setOnClickListener {
+            if (cCount in 1..4) {
+                cCount--
+                Log.d("debug", "$cCount cardcount")
+                runBlocking {
+                    if (cCount == 0) {
+                        viewModel.deleteCard(card.card.cardId)
+                    } else {
+                        viewModel.insertCardtoDeck(card.card, cCount)
+                    }
+
+                }
+            }
+        }
+        backgroundBtn.setOnClickListener {
+            val deck = viewModel.mCurrentDeck.value?.deck!!
+            Log.d("salami", "${deck.name} art button clicked")
+            val deckIV = requireActivity().findViewById<ImageView>(R.id.deck_background_iv)
+            viewModel.updateDeckBackground(deck, card)
+        }
+
         popupWindow.setOnDismissListener {
         }
         popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
@@ -448,6 +547,6 @@ class DeckFragment : Fragment() {
         } else {
             initSearch("c:${viewModel.mCurrentDeck.value?.deck!!.cIdentity}")
         }
-
     }
+
 }

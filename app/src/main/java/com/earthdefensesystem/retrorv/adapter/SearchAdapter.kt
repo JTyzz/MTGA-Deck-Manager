@@ -1,9 +1,11 @@
 package com.earthdefensesystem.retrorv.adapter
 
+import android.app.Application
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -11,12 +13,15 @@ import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.earthdefensesystem.retrorv.R
+import com.earthdefensesystem.retrorv.fragments.SharedViewModel
 import com.earthdefensesystem.retrorv.model.Card
 import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.network.DiffUtilCallback
 import kotlinx.android.synthetic.main.card_front_item.view.*
 
-class SearchAdapter( val clickListener: (Card) -> Unit) :
+class SearchAdapter(
+    val clickListener: (Card) -> Unit
+) :
     PagedListAdapter<Card, SearchAdapter.ViewHolder>(DiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,6 +32,7 @@ class SearchAdapter( val clickListener: (Card) -> Unit) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
+
         holder.itemView.setOnClickListener { clickListener(item!!) }
         Glide.with(holder.itemView.context)
             .setDefaultRequestOptions(RequestOptions().also {
