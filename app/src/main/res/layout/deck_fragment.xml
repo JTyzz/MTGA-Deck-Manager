@@ -68,6 +68,7 @@
             android:defaultFocusHighlightEnabled="true"
             android:imeOptions="actionDone"
             android:selectAllOnFocus="true"
+            android:maxLength="8"
             android:singleLine="true"
             android:textColor="@color/rose"
             android:textColorHint="@color/rose"
