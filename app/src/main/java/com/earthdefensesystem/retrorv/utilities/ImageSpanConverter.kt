@@ -65,7 +65,6 @@ class ImageSpanConverter {
                 }
             }
             return builder
-
         }
 
         fun getSpannedManaImage(context: Context, s: String): Spannable {

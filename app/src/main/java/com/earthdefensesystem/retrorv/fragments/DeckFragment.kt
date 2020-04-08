@@ -65,6 +65,8 @@ class DeckFragment : Fragment() {
         val editDeckName = view.findViewById<EditText>(R.id.deck_name_et)
         val deckBackground = view.findViewById<ImageView>(R.id.deck_background_iv)
 
+        loadUI()
+
         deckRV.layoutManager = LinearLayoutManager(requireContext())
         deckRV.adapter = deckAdapter
         searchRV.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -121,7 +123,7 @@ class DeckFragment : Fragment() {
             }
             false
         }
-
+        //reveals search recyclerview and filter button
         val constraintSet1 = ConstraintSet()
         constraintSet1.clone(parent)
         constraintSet1.setVisibility(R.id.search_rv, View.VISIBLE)
@@ -132,6 +134,7 @@ class DeckFragment : Fragment() {
             R.id.search_rv,
             ConstraintSet.TOP
         )
+        //hides search recyclerview and filter button
         val constraintSet2 = ConstraintSet()
         constraintSet2.clone(parent)
         constraintSet2.setVisibility(R.id.search_rv, View.GONE)
@@ -159,7 +162,9 @@ class DeckFragment : Fragment() {
         filterBtn.setOnClickListener {
             cardFilter()
         }
-        loadUI(view)
+
+
+
         return view
     }
 
@@ -534,17 +539,7 @@ class DeckFragment : Fragment() {
         popupWindow.showAtLocation(view, Gravity.TOP, 0, 0)
     }
 
-    private fun loadUI(view: View) {
-        val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
-        val background = view.findViewById<View>(R.id.fullscreen_view)
-        val time: Long = Random.nextLong(1000, 2500)
-        Handler().postDelayed(
-            {
-                progressBar.visibility = View.GONE
-                background.visibility = View.GONE
-            },
-            time
-        )
+    private fun loadUI() {
         if (viewModel.mCurrentDeck.value?.deck?.cIdentity.isNullOrEmpty()) {
             initSearch("c:W")
         } else {

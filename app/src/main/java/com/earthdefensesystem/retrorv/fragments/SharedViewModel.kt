@@ -97,7 +97,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application){
     }
 
     suspend fun insertCardtoDeck(card: Card, count: Int) = viewModelScope.launch {
-        val currentDeck = mCurrentDeck?.value!!.deck
+        val currentDeck = mCurrentDeck.value!!.deck
         val cardCount = CardCount(card.cardId, count, card)
         dbRepo.insertCardCount(cardCount)
         val junction = DeckCardJoin(cardCount.id, currentDeck.deckId!!)

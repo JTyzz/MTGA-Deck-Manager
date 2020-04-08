@@ -114,25 +114,6 @@
         app:layout_constraintTop_toBottomOf="@id/deck_details_layout" />
 
 
-    <View
-        android:id="@+id/fullscreen_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/opaque"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/fullscreen_view"
-        app:layout_constraintEnd_toEndOf="@id/fullscreen_view"
-        app:layout_constraintStart_toStartOf="@id/fullscreen_view"
-        app:layout_constraintTop_toTopOf="@id/fullscreen_view" />
-
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_guideline"
         android:layout_width="wrap_content"
