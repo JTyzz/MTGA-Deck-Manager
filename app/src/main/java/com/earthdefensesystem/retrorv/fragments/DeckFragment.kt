@@ -31,6 +31,7 @@ import com.earthdefensesystem.retrorv.model.CardCount
 import com.earthdefensesystem.retrorv.network.CardSearchDataSourceFactory
 import com.earthdefensesystem.retrorv.utilities.ImageStoreManager
 import com.github.mikephil.charting.charts.BarChart
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.deck_fragment.*
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
@@ -59,7 +60,7 @@ class DeckFragment : Fragment() {
         val deckRV = view.findViewById<RecyclerView>(R.id.deck_rv)
         val addCardsBtn = view.findViewById<ToggleButton>(R.id.addcards_btn)
         val searchRV = view.findViewById<RecyclerView>(R.id.search_rv)
-        val filterBtn = view.findViewById<Button>(R.id.filter_btn)
+        val filterBtn = view.findViewById<FloatingActionButton>(R.id.filter_fab)
         val deckName = view.findViewById<TextView>(R.id.deck_name_tv)
         val editDeckName = view.findViewById<EditText>(R.id.deck_name_et)
         val deckBackground = view.findViewById<ImageView>(R.id.deck_background_iv)
@@ -124,6 +125,7 @@ class DeckFragment : Fragment() {
         val constraintSet1 = ConstraintSet()
         constraintSet1.clone(parent)
         constraintSet1.setVisibility(R.id.search_rv, View.VISIBLE)
+        constraintSet1.setVisibility(R.id.filter_fab, View.VISIBLE)
         constraintSet1.connect(
             R.id.deck_rv,
             ConstraintSet.BOTTOM,
@@ -133,6 +135,7 @@ class DeckFragment : Fragment() {
         val constraintSet2 = ConstraintSet()
         constraintSet2.clone(parent)
         constraintSet2.setVisibility(R.id.search_rv, View.GONE)
+        constraintSet2.setVisibility(R.id.filter_fab, View.GONE)
         constraintSet2.connect(
             R.id.deck_rv,
             ConstraintSet.BOTTOM,
