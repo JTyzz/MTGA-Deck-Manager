@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/listFragment"
-        android:name="com.earthdefensesystem.retrorv.fragments.ListFragment"
+        android:name="com.jtyzzer.vantress.fragments.ListFragment"
         android:label="list_fragment"
         tools:layout="@layout/list_fragment" >
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/deckFragment"
-        android:name="com.earthdefensesystem.retrorv.fragments.DeckFragment"
+        android:name="com.jtyzzer.vantress.fragments.DeckFragment"
         android:label="deck_fragment"
         tools:layout="@layout/deck_fragment" >
     <action

@@ -6,7 +6,7 @@
     android:background="@color/colorPrimaryDark"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.ListFragment">
+    tools:context="com.jtyzzer.vantress.fragments.ListFragment">
 
     <Button
         android:id="@+id/new_deck_button"

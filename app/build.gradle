@@ -8,7 +8,7 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.earthdefensesystem.retrorv"
+        applicationId "com.jtyzzer.vantress"
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
@@ -47,7 +47,7 @@ dependencies {
     kapt "androidx.lifecycle:lifecycle-compiler:2.2.0"
     //viewmodel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
-    implementation "androidx.fragment:fragment-ktx:1.2.3"
+    implementation "androidx.fragment:fragment-ktx:1.2.4"
     //coroutines
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.2"
     //db

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
-    tools:context=".fragments.DeckFragment">
+    tools:context="com.jtyzzer.vantress.fragments.DeckFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deck_rv"
@@ -33,7 +33,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:textColor="@color/rose"
             android:textAlignment="center"
-            android:text="Click on a card to apply a deck background."
+            android:text="@string/card_bg_warning"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/deck_name_tv"
             />
@@ -44,7 +44,8 @@
             android:layout_height="100dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/deck_name_tv" />
+            app:layout_constraintTop_toBottomOf="@id/deck_name_tv"
+            android:contentDescription="@string/deck_background" />
 
 
 
@@ -77,7 +78,9 @@
             app:layout_constraintBottom_toTopOf="@id/deck_background_iv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:importantForAutofill="no"
+            android:inputType="text" />
 
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/mana_chart"
@@ -96,8 +99,8 @@
             android:background="@drawable/rounded_button_outline"
             android:stateListAnimator="@null"
             android:textColor="@color/rose"
-            android:textOff="Add Cards"
-            android:textOn="Add Cards"
+            android:textOff="@string/add_cards"
+            android:textOn="@string/add_cards"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mana_chart" />
